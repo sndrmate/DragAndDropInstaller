@@ -10,7 +10,7 @@ class Program
     {
         Console.Title = "DragAndDropExtractor V1.0 Beta | by smatthew";
         var DefaultColor = Console.ForegroundColor;
-        string extractPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)+ "\\Virtuali\\MSFS\\GSX");
+        string extractPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)+ "\\Virtuali\\GSX\\MSFS");
         if (args.Length > 0)
         {
             try
