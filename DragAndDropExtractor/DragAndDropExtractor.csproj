@@ -6,6 +6,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <Authors>smatthew</Authors>
+    <Product>GSXProProfileInstaller</Product>
+    <PackageId>GSXProProfileInstaller</PackageId>
+    <FileVersion>1.0.1.0</FileVersion>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <Copyright>(c) smatthew</Copyright>
+    <Description>GSXProProfileInstaller</Description>
+    <Title>GSX Pro Profile Installer</Title>
+    <Version>1.0.0</Version>
+    <Company>smatthew</Company>
+    <AssemblyName>GSXProProfileInstaller</AssemblyName>
+    <SignAssembly>False</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>

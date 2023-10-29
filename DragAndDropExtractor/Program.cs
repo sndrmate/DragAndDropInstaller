@@ -42,9 +42,6 @@ class Program
                 Console.WriteLine($"You dropped the file: {ZipPath}");
                 Console.ForegroundColor = DefaultColor;
 
-                if (!extractPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
-                    extractPath += Path.DirectorySeparatorChar;
-
                 using (ZipArchive archive = ZipFile.OpenRead(ZipPath))
                 {
                     foreach (ZipArchiveEntry entry in archive.Entries)
@@ -71,15 +68,12 @@ class Program
                     {
                         if (entry.FullName.EndsWith(".py", StringComparison.OrdinalIgnoreCase) || entry.FullName.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
                         {   
-                            // Gets the full path to ensure that relative segments are removed.
-                            string destinationPath = Path.GetFullPath(Path.Combine(extractPath, entry.FullName));
+                            string finalExtractPath = Path.GetFullPath(Path.Combine(extractPath, entry.FullName));
 
-                            // Ordinal match is safest, case-sensitive volumes can be mounted within volumes that
-                            // are case-insensitive.
-                            if (destinationPath.StartsWith(extractPath, StringComparison.Ordinal))
+                            if (finalExtractPath.StartsWith(extractPath, StringComparison.Ordinal))
                             {
-                                Console.WriteLine(destinationPath);
-                                entry.ExtractToFile(destinationPath);
+                                Console.WriteLine(finalExtractPath);
+                                entry.ExtractToFile(finalExtractPath);
                             }
                                 
                         }
@@ -101,7 +95,7 @@ class Program
         else
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Please drag and drop a file onto the DragAndDropExtractor.exe.");
+            Console.WriteLine("Please drag and drop a file onto the executable.");
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine("\nPress any key to exit.");
         }
