@@ -43,6 +43,7 @@ class Program
                 string ZipPath = args[0];
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"You dropped the file: {ZipPath}");
+                Console.ForegroundColor = DefaultColor;
 
                 if (!extractPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
                     extractPath += Path.DirectorySeparatorChar;
@@ -92,7 +93,9 @@ class Program
             catch (Exception e)
             {
 
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(e);
+                Console.ForegroundColor = DefaultColor;
                 Console.WriteLine("\nPress any key to exit.");
                 Console.ReadKey();
             }
