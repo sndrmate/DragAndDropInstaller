@@ -3,15 +3,14 @@
  * All rights reserved.
  */
 
-
+using SharpCompress.Readers;
 using System.IO.Compression;
-
 class Program
 {
     static void Main(string[] args)
     {
         Console.Title = "GSX Pro Profile Installer v1.0 | by smatthew & FatGingerHead";
-        var DefaultColor = Console.ForegroundColor;
+        ConsoleColor DefaultColor = Console.ForegroundColor;
         string extractPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)+ "\\Virtuali\\GSX\\MSFS");
         if (args.Length > 0)
         {
