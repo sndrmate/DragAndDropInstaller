@@ -4,8 +4,6 @@
  */
 using SharpCompress;
 using SharpCompress.Archives;
-using SharpCompress.Common;
-using SharpCompress.Writers;
 class Program
 {
     static void Main(string[] args)
@@ -37,6 +35,11 @@ class Program
 
             using (var archive = ArchiveFactory.Open(zipPath))
             {
+                /* Problem: Double foreach not so efficient. Maybe we should iterate through just once the archive and save the .py and .ini file names, then
+                overwrite files with the same icao code and then just extract the saved files from the archive? It would need only 1 foreach and we could use the already existing list. */
+
+                // Feature: If there is no .py or .ini files in the root directory of the archive, then check if there is a folder and search in that.
+
                 foreach (IArchiveEntry entry in archive.Entries)
                 {
                     string icao_code = entry.Key.Split('-')[0];
