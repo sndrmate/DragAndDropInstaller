@@ -30,7 +30,7 @@ class Program
         {
             string zipPath = args[0];
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine($"You initiated the installation process from this archive: {zipPath}");
+            Console.WriteLine($"You initiated the installation process from this archive:\n{zipPath}");
             Console.ForegroundColor = DefaultColor;
             List<string> overwrittenFiles = new();
             List<string> extractedFiles = new();
@@ -42,8 +42,10 @@ class Program
                     string icao_code = entry.Key.Split('-')[0];
                     string[] matchingFiles = Directory.GetFiles(extractPath, $"*{icao_code}*");
                     overwrittenFiles.AddRange(matchingFiles);
-                    matchingFiles.ForEach(filePath => File.Delete(filePath));
-
+                    matchingFiles.ForEach(filePath => File.Delete(filePath));            
+                }
+                foreach (IArchiveEntry entry in archive.Entries)
+                {
                     if (entry.Key.EndsWith(".py", StringComparison.OrdinalIgnoreCase)
                         || entry.Key.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
                     {
