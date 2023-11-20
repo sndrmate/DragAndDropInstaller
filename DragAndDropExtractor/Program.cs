@@ -2,17 +2,21 @@
  * Copyright (c) 2023 smatthew
  * All rights reserved.
  */
-
 using SharpCompress;
-using System.IO.Compression;
+using SharpCompress.Archives;
+using SharpCompress.Common;
+using SharpCompress.Writers;
 class Program
 {
     static void Main(string[] args)
     {
-        Console.Title = "GSX Pro Profile Installer-dev v1.0 | by smatthew & FatGingerHead";
-        var DefaultColor = Console.ForegroundColor;
+        Console.Title = "GSX Pro Profile Installer-dev v1.0";
+        ConsoleColor DefaultColor = Console.ForegroundColor;
         string extractPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
+
+        
         if (args.Length == 0)
+        // IDEA: We should make a search for .py and .ini files in the running directory.
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Please drag and drop a file onto the executable.");
@@ -25,28 +29,37 @@ class Program
         try
         {
             string zipPath = args[0];
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"You dropped the file: {zipPath}");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine($"You initiated the installation process from this archive: {zipPath}");
             Console.ForegroundColor = DefaultColor;
             List<string> overwrittenFiles = new();
             List<string> extractedFiles = new();
 
-            using ZipArchive archive = ZipFile.OpenRead(zipPath);
-            foreach (ZipArchiveEntry entry in archive.Entries)
+            using (var archive = ArchiveFactory.Open(zipPath))
             {
-                string icao_code = entry.FullName.Split('-')[0];
-                string[] matchingFiles = Directory.GetFiles(extractPath, $"*{icao_code}*");
-                overwrittenFiles.AddRange(matchingFiles);
-                matchingFiles.ForEach(filePath => File.Delete(filePath));
-
-                if (entry.FullName.EndsWith(".py", StringComparison.OrdinalIgnoreCase)
-                    || entry.FullName.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
+                foreach (IArchiveEntry entry in archive.Entries)
                 {
-                    string finalExtractPath = Path.GetFullPath(Path.Combine(extractPath, entry.FullName));
-                    extractedFiles.Add(finalExtractPath);
-                    entry.ExtractToFile(finalExtractPath);
-                }
+                    string icao_code = entry.Key.Split('-')[0];
+                    string[] matchingFiles = Directory.GetFiles(extractPath, $"*{icao_code}*");
+                    overwrittenFiles.AddRange(matchingFiles);
+                    matchingFiles.ForEach(filePath => File.Delete(filePath));
 
+                    if (entry.Key.EndsWith(".py", StringComparison.OrdinalIgnoreCase)
+                        || entry.Key.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string finalExtractPath = Path.GetFullPath(Path.Combine(extractPath, entry.Key));
+                        extractedFiles.Add(finalExtractPath);
+                        using (Stream stream = entry.OpenEntryStream())
+                        {
+                            using (FileStream writer = File.OpenWrite(finalExtractPath))
+                            {
+                                stream.CopyTo(writer);
+
+                            }
+
+                        }
+                    }
+                }
             }
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("\nFiles overwritten:\n" + string.Join('\n', overwrittenFiles));
