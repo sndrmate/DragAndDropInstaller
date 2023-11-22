@@ -59,8 +59,13 @@ class Program
                             using (FileStream writer = File.OpenWrite(finalExtractPath))
                             {
                                 stream.CopyTo(writer);
+                            }
 
                             }
+                    }
+                    else if (entry.IsDirectory)
+                    {
+                        string searchPath = Path.GetFullPath(Path.Combine(zipPath, entry.Key));
 
                         }
                     }
