@@ -61,13 +61,12 @@ class Program
                                 stream.CopyTo(writer);
                             }
 
-                            }
+                        }
                     }
                     else if (entry.IsDirectory)
                     {
                         string searchPath = Path.GetFullPath(Path.Combine(zipPath, entry.Key));
 
-                        }
                     }
                 }
             }
