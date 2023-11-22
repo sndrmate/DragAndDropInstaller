@@ -14,7 +14,7 @@ class Program
 
         
         if (args.Length == 0)
-        // IDEA: We should make a search for .py and .ini files in the running directory.
+        // IDEA: We should make a search for .py and .ini files in the running directory (or copy the archive to the terminal?).
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Please drag and drop a file onto the executable.");
