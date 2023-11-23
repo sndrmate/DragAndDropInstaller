@@ -32,8 +32,9 @@ namespace DragAndDropExtractor
             {
                 string archivePath = args[0];
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($"You initiated the installation process from this archive:\n{archivePath}");
+                Console.WriteLine($"You initiated the installation process from this archive:");
                 Console.ForegroundColor = DefaultColor;
+                Console.WriteLine(archivePath);
                 List<IArchiveEntry> selectedArchiveFiles = new List<IArchiveEntry>();
                 List<string> deletedFiles = new();
                 List<string> installedFiles = new();
@@ -60,8 +61,7 @@ namespace DragAndDropExtractor
                             }
                             else if ((!(selectedArchiveFiles?.Any() ?? false)) && entry.IsDirectory)
                             {
-                                string directoryPath = entry.Key.TrimEnd('/') + "/";
-                                ReadArchive(directoryPath);
+                                //TODO
                             }
                         }
                         if (!(selectedArchiveFiles?.Any() ?? false))
