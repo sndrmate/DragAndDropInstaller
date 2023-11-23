@@ -4,6 +4,7 @@
  */
 using SharpCompress;
 using SharpCompress.Archives;
+using SharpCompress.Common;
 
 namespace DragAndDropExtractor
 {
@@ -13,14 +14,14 @@ namespace DragAndDropExtractor
         {
             Console.Title = "GSX Pro Profile Installer-dev v1.0";
             ConsoleColor DefaultColor = Console.ForegroundColor;
-            string extractPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
+            string destinationPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
 
 
             if (args.Length == 0)
             // IDEA: We should make a search for .py and .ini files in the running directory (or copy the archive to the terminal?).
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Please drag and drop a file onto the executable.");
+                Console.WriteLine("ERROR: To install a GSX Pro Profile, please drag and drop the archive onto the executable.");
                 Console.ForegroundColor = DefaultColor;
                 Console.WriteLine("\nPress any key to exit.");
                 Console.ReadKey();
@@ -29,56 +30,65 @@ namespace DragAndDropExtractor
 
             try
             {
-                string zipPath = args[0];
+                string archivePath = args[0];
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($"You initiated the installation process from this archive:\n{zipPath}");
+                Console.WriteLine($"You initiated the installation process from this archive:\n{archivePath}");
                 Console.ForegroundColor = DefaultColor;
-                List<string> overwrittenFiles = new();
-                List<string> extractedFiles = new();
+                List<IArchiveEntry> selectedArchiveFiles = new List<IArchiveEntry>();
+                List<string> deletedFiles = new();
+                List<string> installedFiles = new();
 
-                using (var archive = ArchiveFactory.Open(zipPath))
+                ReadArchive(archivePath);
+
+                void ReadArchive(string archivePath)
                 {
-                    /* Problem: Double foreach not so efficient. Maybe we should iterate through just once the archive and save the .py and .ini file names, then
-                    overwrite files with the same icao code and then just extract the saved files from the archive? It would need only 1 foreach and we could use the already existing list. */
-
-                    // Feature: If there is no .py or .ini files in the root directory of the archive, then check if there is a folder and search in that.
-
-                    foreach (IArchiveEntry entry in archive.Entries)
+                    using (IArchive archive = ArchiveFactory.Open(archivePath))
                     {
-                        string icao_code = entry.Key.Split('-')[0];
-                        string[] matchingFiles = Directory.GetFiles(extractPath, $"*{icao_code}*");
-                        overwrittenFiles.AddRange(matchingFiles);
-                        matchingFiles.ForEach(filePath => File.Delete(filePath));
-                    }
-                    foreach (IArchiveEntry entry in archive.Entries)
-                    {
-                        if (entry.Key.EndsWith(".py", StringComparison.OrdinalIgnoreCase)
-                            || entry.Key.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
+                        /* Problem: Double foreach not so efficient. Maybe we should iterate through just once the archive and save the .py and .ini file names, then
+                        overwrite files with the same icao code and then just extract the saved files from the archive? It would need only 1 foreach and we could use the already existing list. */
+
+                        foreach (IArchiveEntry entry in archive.Entries)
                         {
-                            string finalExtractPath = Path.GetFullPath(Path.Combine(extractPath, entry.Key));
-                            extractedFiles.Add(finalExtractPath);
-                            using (Stream stream = entry.OpenEntryStream())
+                            if (entry.Key.EndsWith(".py", StringComparison.OrdinalIgnoreCase)
+                                || entry.Key.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
                             {
-                                using (FileStream writer = File.OpenWrite(finalExtractPath))
-                                {
-                                    stream.CopyTo(writer);
-                                }
-
+                                selectedArchiveFiles.Add(entry);
+                                string icao_code = entry.Key.Split('-')[0];
+                                string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{icao_code}*");
+                                deletedFiles.AddRange(matchingFiles);
+                                matchingFiles.ForEach(filePath => File.Delete(filePath));
+                            }
+                            else if ((!(selectedArchiveFiles?.Any() ?? false)) && entry.IsDirectory)
+                            {
+                                string directoryPath = entry.Key.TrimEnd('/') + "/";
+                                ReadArchive(directoryPath);
                             }
                         }
-                        else if (entry.IsDirectory)
+                        if (!(selectedArchiveFiles?.Any() ?? false))
                         {
-                            string searchPath = Path.GetFullPath(Path.Combine(zipPath, entry.Key));
-
+                            throw new Exception("ERROR: The archive is empty or no relevant files have been found.");
+                        }
+                        foreach (IArchiveEntry entry in selectedArchiveFiles)
+                        {
+                            string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, entry.Key));
+                            installedFiles.Add(fullDestinationPath);
+                            using (Stream stream = entry.OpenEntryStream())
+                            using (FileStream writer = File.OpenWrite(fullDestinationPath))
+                            {
+                                stream.CopyTo(writer);
+                            }
                         }
                     }
                 }
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\nFiles overwritten:\n" + string.Join('\n', overwrittenFiles));
-                Console.ForegroundColor = DefaultColor;
-                Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\nExtracted files:\n" + string.Join('\n', extractedFiles));
+                Console.WriteLine("\nInstalled files:\n");
+                Console.ForegroundColor = DefaultColor;
+                Console.WriteLine(string.Join('\n', installedFiles));
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nFiles overwritten:\n");
+                Console.ForegroundColor = DefaultColor;
+                Console.WriteLine(string.Join('\n', deletedFiles));
                 Console.ForegroundColor = DefaultColor;
                 Console.WriteLine();
             }
