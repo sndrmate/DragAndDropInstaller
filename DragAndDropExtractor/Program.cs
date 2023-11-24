@@ -18,7 +18,6 @@ class Program
 
 
         if (args.Length == 0)
-        // IDEA: We should make a search for .py and .ini files in the running directory (or copy the archive to the terminal?).
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("ERROR: To install a GSX Pro Profile, please drag and drop the archive onto the executable.");
@@ -45,18 +44,16 @@ class Program
             {
                 using (IArchive archive = ArchiveFactory.Open(archivePath))
                 {
-                    /* Problem: Double foreach not so efficient. Maybe we should iterate through just once the archive and save the .py and .ini file names, then
-                    overwrite files with the same icao code and then just extract the saved files from the archive? It would need only 1 foreach and we could use the already existing list. */
-                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.ForegroundColor = ConsoleColor.Yellow; //remove this line before merge to master
                     foreach (IArchiveEntry entry in archive.Entries)
                     {
                         if (entry.Key.EndsWith(".py", StringComparison.OrdinalIgnoreCase)
                             || entry.Key.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
                         {
-                            Console.WriteLine($"DEBUG: FILE FOUND AND PROCESSING BEGINS: {entry.Key}");
+                            Console.WriteLine($"DEBUG: FILE FOUND AND PROCESSING BEGINS: {entry.Key}"); //remove this line before merge to master
                             selectedArchiveFiles.Add(entry);
                             string filename = entry.Key;
-                            if (entry.Key.Contains("/")) { filename = entry.Key.Split('/')[1]; }
+                            if (entry.Key.Contains("/")) { filename = entry.Key.Split('/').Last(); }
                             string icao_code = filename.Split('-')[0];
                             string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{icao_code}*");
                             deletedFiles.AddRange(matchingFiles);
@@ -70,7 +67,7 @@ class Program
                     foreach (IArchiveEntry entry in selectedArchiveFiles)
                     {
                         string filename = entry.Key;
-                        if (entry.Key.Contains("/")) { filename = entry.Key.Split('/')[1]; }
+                        if (entry.Key.Contains("/")) { filename = entry.Key.Split('/').Last(); }
                         string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, filename));
                         installedFiles.Add(fullDestinationPath);
                         using (Stream stream = entry.OpenEntryStream())
