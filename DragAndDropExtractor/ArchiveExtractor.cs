@@ -31,8 +31,7 @@ class ArchiveExtractor
                 if (IsSupportedFile(entry.Key))
                 {
                     Console.WriteLine($"DEBUG: FILE FOUND AND PROCESSING BEGINS: {entry.Key}"); //remove this line before merge to master
-                    extractQueue.Add(entry);                     
-                    if (entry.Key.Contains("\\")) { string filename = entry.Key.Split('\\').Last(); }
+                    extractQueue.Add(entry);
                     string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{GetICAOcode(entry.Key)}*");
                     deletedFiles.AddRange(matchingFiles);
                     matchingFiles.ForEach(filePath => File.Delete(filePath));
@@ -63,19 +62,19 @@ class ArchiveExtractor
         { return true; }
         return false;
     }
-    public void ListInstalledFiles()
+    public string DisplayInstalledFiles()
     {
-        Console.WriteLine(string.Join('\n', installedFiles));
+        return string.Join('\n', installedFiles);
     }
-    public void ListRemovedFiles()
+    public string DisplayRemovedFiles()
     {
-        Console.WriteLine(string.Join('\n', deletedFiles));
+        return string.Join('\n', deletedFiles);
     }
     string GetICAOcode(string fileName)
     {
-        if(fileName.Contains("/"))
+        if (fileName.Contains("/"))
         {
-           return fileName.Split("/").Last().Split("-")[0];
+            return fileName.Split("/").Last().Split("-")[0];
         }
         return fileName.Split('-')[0];
     }

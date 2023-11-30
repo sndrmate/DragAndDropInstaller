@@ -40,12 +40,12 @@ class Program
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\nInstalled files:\n");
             Console.ForegroundColor = DefaultColor;
-            extract.ListInstalledFiles();
+            Console.WriteLine(extract.DisplayInstalledFiles());
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("\nOverwritten files:\n");
             Console.ForegroundColor = DefaultColor;
-            extract.ListRemovedFiles();
+            Console.WriteLine(extract.DisplayRemovedFiles()); 
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine();
         }
