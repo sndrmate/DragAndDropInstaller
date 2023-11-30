@@ -16,7 +16,6 @@ class Program
         ConsoleColor DefaultColor = Console.ForegroundColor;
         string destinationPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
 
-
         if (args.Length == 0)
         // IDEA: We should make a search for .py and .ini files in the running directory (or copy the archive to the terminal?).
         {
@@ -27,7 +26,7 @@ class Program
             Console.ReadKey();
             return;
         }
-
+        //Error handling for unsupported archive types by (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
         try
         {
             string archivePath = args[0];
@@ -45,8 +44,6 @@ class Program
             {
                 using (IArchive archive = ArchiveFactory.Open(archivePath))
                 {
-                    /* Problem: Double foreach not so efficient. Maybe we should iterate through just once the archive and save the .py and .ini file names, then
-                    overwrite files with the same icao code and then just extract the saved files from the archive? It would need only 1 foreach and we could use the already existing list. */
                     Console.ForegroundColor = ConsoleColor.Yellow; //remove this line before merge to master
                     foreach (IArchiveEntry entry in archive.Entries)
                     {
