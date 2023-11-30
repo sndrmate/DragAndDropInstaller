@@ -25,68 +25,27 @@ class Program
             Console.ReadKey();
             return;
         }
-        //Error handling for unsupported archive types by (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
+
         try
         {
-            string archivePath = args[0];
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine($"You initiated the installation process from this archive:");
             Console.ForegroundColor = DefaultColor;
-            Console.WriteLine(archivePath);
-            List<IArchiveEntry> selectedArchiveFiles = new List<IArchiveEntry>();
-            List<string> deletedFiles = new();
-            List<string> installedFiles = new();
+            Console.WriteLine(args[0]);
+            Console.WriteLine();
 
-            ReadArchive(archivePath);
-
-            void ReadArchive(string archivePath)
-            {
-                using (IArchive archive = ArchiveFactory.Open(archivePath))
-                {
-                    Console.ForegroundColor = ConsoleColor.Yellow; //remove this line before merge to master
-                    foreach (IArchiveEntry entry in archive.Entries)
-                    {
-                        if (entry.Key.EndsWith(".py", StringComparison.OrdinalIgnoreCase)
-                            || entry.Key.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
-                        {
-                            Console.WriteLine($"DEBUG: FILE FOUND AND PROCESSING BEGINS: {entry.Key}"); //remove this line before merge to master
-                            selectedArchiveFiles.Add(entry);
-                            string filename = entry.Key;
-                            if (entry.Key.Contains("/")) { filename = entry.Key.Split('/').Last(); }
-                            string icao_code = filename.Split('-')[0];
-                            string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{icao_code}*");
-                            deletedFiles.AddRange(matchingFiles);
-                            matchingFiles.ForEach(filePath => File.Delete(filePath));
-                        }
-                    }
-                    if (!(selectedArchiveFiles?.Any() ?? false))
-                    {
-                        throw new Exception("ERROR: The archive is empty or no relevant files have been found.\n");
-                    }
-                    foreach (IArchiveEntry entry in selectedArchiveFiles)
-                    {
-                        string filename = entry.Key;
-                        if (entry.Key.Contains("/")) { filename = entry.Key.Split('/').Last(); }
-                        string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, filename));
-                        installedFiles.Add(fullDestinationPath);
-                        using (Stream stream = entry.OpenEntryStream())
-                        using (FileStream writer = File.OpenWrite(fullDestinationPath))
-                        {
-                            stream.CopyTo(writer);
-                        }
-                    }
-                }
-            }
+            ArchiveExtractor extract = new ArchiveExtractor(destinationPath);
+            extract.ExtractFiles(args[0]);
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\nInstalled files:\n");
             Console.ForegroundColor = DefaultColor;
-            Console.WriteLine(string.Join('\n', installedFiles));
+            extract.ListInstalledFiles();
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("\nOverwritten files:\n");
             Console.ForegroundColor = DefaultColor;
-            Console.WriteLine(string.Join('\n', deletedFiles));
+            extract.ListRemovedFiles();
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine();
         }
