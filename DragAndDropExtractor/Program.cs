@@ -16,7 +16,6 @@ class Program
         ConsoleColor DefaultColor = Console.ForegroundColor;
         string destinationPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
 
-
         if (args.Length == 0)
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -26,7 +25,7 @@ class Program
             Console.ReadKey();
             return;
         }
-
+        //Error handling for unsupported archive types by (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
         try
         {
             string archivePath = args[0];
