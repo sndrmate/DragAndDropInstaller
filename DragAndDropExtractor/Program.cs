@@ -29,12 +29,12 @@ class Program
         try
         {
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine($"You initiated the installation process from this archive:");
+            Console.WriteLine("You initiated the installation process from this archive:");
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(args[0]);
             Console.WriteLine();
 
-            ArchiveExtractor extract = new ArchiveExtractor(destinationPath);
+            ArchiveExtractor extract = new(destinationPath);
             extract.ExtractFiles(args[0]);
 
             Console.ForegroundColor = ConsoleColor.Green;

@@ -10,7 +10,7 @@ namespace DragAndDropExtractor;
 
 class ArchiveExtractor
 {
-    string destinationPath = string.Empty;
+    string destinationPath;
     List<IArchiveEntry> extractQueue = new List<IArchiveEntry>();
     List<string> deletedFiles = new List<string>();
     List<string> installedFiles = new List<string>();
@@ -23,36 +23,32 @@ class ArchiveExtractor
     public void ExtractFiles(string archivePath)
     {
         //Error handling for unsupported archive types by (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
-        using (IArchive archive = ArchiveFactory.Open(archivePath))
+        using IArchive archive = ArchiveFactory.Open(archivePath);
+        Console.ForegroundColor = ConsoleColor.Yellow; //remove this line before merge to master
+        foreach (IArchiveEntry entry in archive.Entries)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow; //remove this line before merge to master
-            foreach (IArchiveEntry entry in archive.Entries)
+            if (IsSupportedFile(entry.Key))
             {
-                if (IsSupportedFile(entry.Key))
-                {
-                    Console.WriteLine($"DEBUG: FILE FOUND AND PROCESSING BEGINS: {entry.Key}"); //remove this line before merge to master
-                    extractQueue.Add(entry);
-                    string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{GetICAOcode(entry.Key)}*");
-                    deletedFiles.AddRange(matchingFiles);
-                    matchingFiles.ForEach(filePath => File.Delete(filePath));
-                }
+                Console.WriteLine($"DEBUG: FILE FOUND AND PROCESSING BEGINS: {entry.Key}"); //remove this line before merge to master
+                extractQueue.Add(entry);
+                string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{GetICAOcode(entry.Key)}*");
+                deletedFiles.AddRange(matchingFiles);
+                matchingFiles.ForEach(filePath => File.Delete(filePath));
             }
-            if (!(extractQueue?.Any() ?? false))
-            {
-                throw new Exception("ERROR: The archive is empty or no relevant files have been found.\n");
-            }
-            foreach (IArchiveEntry entry in extractQueue)
-            {
-                string filename = entry.Key;
-                if (entry.Key.Contains("/")) { filename = entry.Key.Split('/').Last(); }
-                string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, filename));
-                installedFiles.Add(fullDestinationPath);
-                using (Stream stream = entry.OpenEntryStream())
-                using (FileStream writer = File.OpenWrite(fullDestinationPath))
-                {
-                    stream.CopyTo(writer);
-                }
-            }
+        }
+        if (extractQueue?.Any() == false)
+        {
+            throw new Exception("ERROR: The archive is empty or no relevant files have been found.\n"); //Need to improve error handling
+        }
+        foreach (IArchiveEntry entry in extractQueue)
+        {
+            string filename = entry.Key;
+            if (entry.Key.Contains('/')) { filename = entry.Key.Split('/').Last(); }
+            string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, filename));
+            installedFiles.Add(fullDestinationPath);
+            using Stream stream = entry.OpenEntryStream();
+            using FileStream writer = File.OpenWrite(fullDestinationPath);
+            stream.CopyTo(writer);
         }
     }
     bool IsSupportedFile(string fileName)
@@ -72,9 +68,9 @@ class ArchiveExtractor
     }
     string GetICAOcode(string fileName)
     {
-        if (fileName.Contains("/"))
+        if (fileName.Contains('/'))
         {
-            return fileName.Split("/").Last().Split("-")[0];
+            return fileName.Split('/').Last().Split('-')[0];
         }
         return fileName.Split('-')[0];
     }
