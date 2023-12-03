@@ -6,12 +6,14 @@ using SharpCompress;
 using SharpCompress.Archives;
 using SharpCompress.Common;
 
-namespace DragAndDropExtractor;
+namespace DragAndDropInstaller;
 
 class ArchiveExtractor
 {
     string destinationPath;
     List<IArchiveEntry> extractQueue = new List<IArchiveEntry>();
+    List<IArchiveEntry> installQueue1 = new List<IArchiveEntry>();
+    List<IArchiveEntry> installQueue2 = new List<IArchiveEntry>();
     List<string> deletedFiles = new List<string>();
     List<string> installedFiles = new List<string>();
 

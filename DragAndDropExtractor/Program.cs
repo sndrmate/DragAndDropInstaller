@@ -6,13 +6,13 @@ using SharpCompress;
 using SharpCompress.Archives;
 using SharpCompress.Common;
 
-namespace DragAndDropExtractor;
+namespace DragAndDropInstaller;
 
 class Program
 {
     static void Main(string[] args)
     {
-        Console.Title = "GSX Pro Profile Installer-dev v1.0";
+        Console.Title = "Drag&Drop Installer-dev v1.0";
         ConsoleColor DefaultColor = Console.ForegroundColor;
         string destinationPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
 

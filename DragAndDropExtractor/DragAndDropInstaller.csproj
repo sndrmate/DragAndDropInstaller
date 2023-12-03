@@ -7,16 +7,16 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
     <Authors>smatthew</Authors>
-    <Product>GSXProProfileInstaller</Product>
-    <PackageId>GSXProProfileInstaller</PackageId>
+    <Product>DragAndDropInstaller</Product>
+    <PackageId>DragAndDropInstaller</PackageId>
     <FileVersion>1.0.1.0</FileVersion>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <Copyright>(c) smatthew</Copyright>
-    <Description>GSXProProfileInstaller</Description>
-    <Title>GSX Pro Profile Installer</Title>
+    <Description>DragAndDropInstaller</Description>
+    <Title>Drag&amp;Drop Installer</Title>
     <Version>1.0.0</Version>
     <Company>smatthew</Company>
-    <AssemblyName>GSXProProfileInstaller</AssemblyName>
+    <AssemblyName>DragAndDropInstaller</AssemblyName>
     <SignAssembly>False</SignAssembly>
   </PropertyGroup>
 
