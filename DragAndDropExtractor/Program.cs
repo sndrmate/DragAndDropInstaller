@@ -2,10 +2,6 @@
  * Copyright (c) 2023 smatthew
  * All rights reserved.
  */
-using SharpCompress;
-using SharpCompress.Archives;
-using SharpCompress.Common;
-
 namespace DragAndDropInstaller;
 
 class Program
@@ -38,12 +34,12 @@ class Program
             extract.ExtractFiles(args[0]);
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\nInstalled files:\n");
+            Console.WriteLine("\nProfiles installed:\n");
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(extract.DisplayInstalledFiles());
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\nOverwritten files:\n");
+            Console.WriteLine("\nProfiles overwritten:\n");
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(extract.DisplayRemovedFiles()); 
             Console.ForegroundColor = DefaultColor;

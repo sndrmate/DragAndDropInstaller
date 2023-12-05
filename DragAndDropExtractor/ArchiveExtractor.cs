@@ -4,7 +4,6 @@
  */
 using SharpCompress;
 using SharpCompress.Archives;
-using SharpCompress.Common;
 
 namespace DragAndDropInstaller;
 
@@ -51,14 +50,14 @@ class ArchiveExtractor
         {
             throw new Exception("ERROR: The archive is empty or no relevant files have been found.\n"); //Need to improve error handling
         }
-        if (DotIniFiles.Count >= 2 && DotPyFiles.Count == 1)
+        else if (DotIniFiles?.Count >= 2 && DotPyFiles?.Count == 1)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("ATTENTION! Multiple profiles detected!\nPlease choose one.");
             HandleMultipleProfiles(DotIniFiles);
             toExtract.AddRange(DotPyFiles);
         }
-        else if (DotIniFiles.Count >= 2 && DotPyFiles.Count >= 2)
+        else if (DotIniFiles?.Count >= 2 && DotPyFiles?.Count >= 2)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine("ATTENTION! Multiple profiles detected!\nPlease choose one.");
@@ -103,7 +102,7 @@ class ArchiveExtractor
         }
         Console.Write("Choice: ");
         Console.ForegroundColor = Default;
-        toExtract.Add(list[(int.Parse(Console.ReadLine()))]);
+        toExtract.Add(list[int.Parse(Console.ReadLine())]);
     }
     public string DisplayInstalledFiles()
     {
