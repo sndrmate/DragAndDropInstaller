@@ -26,24 +26,15 @@ class ArchiveExtractor
     {
         //Error handling for unsupported archive types by (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
         using IArchive archive = ArchiveFactory.Open(archivePath);
-        Console.ForegroundColor = ConsoleColor.Yellow; //remove this line before merge to master
         foreach (IArchiveEntry entry in archive.Entries)
         {
             if (IsDotIni(entry.Key))
             {
-                Console.WriteLine($"DEBUG: FILE FOUND AND PROCESSING BEGINS: {entry.Key}\n"); //remove this line before merge to master
-                DotIniFiles.Add(entry);
-                string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{GetICAOcode(entry.Key)}*");
-                deletedFiles.AddRange(matchingFiles);
-                matchingFiles.ForEach(filePath => File.Delete(filePath));
+                HandleSupportedFile(DotIniFiles, entry);
             }
             else if (IsDotPy(entry.Key))
             {
-                Console.WriteLine($"DEBUG: FILE FOUND AND PROCESSING BEGINS: {entry.Key}\n"); //remove this line before merge to master
-                DotPyFiles.Add(entry);
-                string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{GetICAOcode(entry.Key)}*");
-                deletedFiles.AddRange(matchingFiles);
-                matchingFiles.ForEach(filePath => File.Delete(filePath));
+                HandleSupportedFile(DotPyFiles, entry);
             }
         }
         if (DotIniFiles?.Any() == false && DotPyFiles?.Any() == false)
@@ -92,6 +83,13 @@ class ArchiveExtractor
         { return true; }
         return false;
     }
+    void HandleSupportedFile(List<IArchiveEntry> list, IArchiveEntry entry)
+    {
+        list.Add(entry);
+        string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{GetICAOcode(entry.Key)}*");
+        deletedFiles.AddRange(matchingFiles);
+        matchingFiles.ForEach(filePath => File.Delete(filePath));
+    }
     void HandleMultipleProfiles(List<IArchiveEntry> list)
     {
         Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -102,7 +100,15 @@ class ArchiveExtractor
         }
         Console.Write("Choice: ");
         Console.ForegroundColor = Default;
-        toExtract.Add(list[int.Parse(Console.ReadLine())]);
+        short choice;
+        if (short.TryParse(Console.ReadLine(), out choice))
+        {
+            toExtract.Add(list[choice]);
+        }
+        else
+        {
+            throw new Exception("ERROR: Choice is empty.");
+        }
     }
     public string DisplayInstalledFiles()
     {
