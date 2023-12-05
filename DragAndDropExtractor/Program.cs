@@ -34,12 +34,12 @@ class Program
             extract.ExtractFiles(args[0]);
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\nProfiles installed:\n");
+            Console.WriteLine("\nProfile installed:\n");
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(extract.DisplayInstalledFiles());
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\nProfiles overwritten:\n");
+            Console.WriteLine("\nProfile overwritten:\n");
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine(extract.DisplayRemovedFiles()); 
             Console.ForegroundColor = DefaultColor;
