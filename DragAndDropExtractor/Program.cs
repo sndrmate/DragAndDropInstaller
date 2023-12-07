@@ -8,7 +8,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        Console.Title = "Drag&Drop Installer-dev v1.0";
+        Console.Title = "Drag&Drop Installer v1.0";
         ConsoleColor DefaultColor = Console.ForegroundColor;
         string destinationPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
 

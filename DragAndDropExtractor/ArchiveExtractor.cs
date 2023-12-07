@@ -24,7 +24,7 @@ internal class ArchiveExtractor
     }
     public void ExtractFiles(string archivePath)
     {
-        //Error handling for unsupported archive types by (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
+        //Error handling for unsupported archive types (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
         using IArchive archive = ArchiveFactory.Open(archivePath);
         foreach (IArchiveEntry entry in archive.Entries)
         {
@@ -82,12 +82,11 @@ internal class ArchiveExtractor
         }
         Console.Write("Enter your choice: ");
         Console.ForegroundColor = defaultColor;
-        // bool parsed = false;
+
         bool valid = false;
         short choice = -1;
         while (!valid)
         {
-            // parsed = short.TryParse(Console.ReadLine(), out choice);
             valid = short.TryParse(Console.ReadLine(), out choice) && choice >= 0 && choice < list.Count;
         }
         toExtract.Add(list[choice]);
