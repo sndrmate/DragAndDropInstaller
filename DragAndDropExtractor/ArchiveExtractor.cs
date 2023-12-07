@@ -7,15 +7,15 @@ using SharpCompress.Archives;
 
 namespace DragAndDropInstaller;
 
-class ArchiveExtractor
+internal class ArchiveExtractor
 {
-    string destinationPath;
-    List<IArchiveEntry> toExtract = new List<IArchiveEntry>();
-    List<IArchiveEntry> DotPyFiles = new List<IArchiveEntry>();
-    List<IArchiveEntry> DotIniFiles = new List<IArchiveEntry>();
-    List<string> deletedFiles = new List<string>();
-    List<string> installedFiles = new List<string>();
-    ConsoleColor Default = Console.ForegroundColor;
+    private readonly string destinationPath;
+    private readonly List<IArchiveEntry> toExtract = new();
+    private readonly List<IArchiveEntry> DotPyFiles = new();
+    private readonly List<IArchiveEntry> DotIniFiles = new();
+    private readonly List<string> deletedFiles = new();
+    private readonly List<string> installedFiles = new();
+    private readonly ConsoleColor defaultColor = Console.ForegroundColor;
 
     public ArchiveExtractor(string destinationPath)
     {
@@ -28,42 +28,28 @@ class ArchiveExtractor
         using IArchive archive = ArchiveFactory.Open(archivePath);
         foreach (IArchiveEntry entry in archive.Entries)
         {
-            if (IsDotIni(entry.Key))
+            switch (entry.Key)
             {
-                HandleSupportedFile(DotIniFiles, entry);
-            }
-            else if (IsDotPy(entry.Key))
-            {
-                HandleSupportedFile(DotPyFiles, entry);
+                case string iniFile when iniFile.EndsWith(".ini", StringComparison.OrdinalIgnoreCase):
+                    HandleSupportedFile(DotIniFiles, entry);
+                    break;
+                case string pyFile when pyFile.EndsWith(".py", StringComparison.OrdinalIgnoreCase):
+                    HandleSupportedFile(DotPyFiles, entry);
+                    break;
             }
         }
-        if (DotIniFiles?.Any() == false && DotPyFiles?.Any() == false)
+
+        if (!DotIniFiles.Any() && !DotPyFiles.Any())
         {
             throw new Exception("ERROR: The archive is empty or no relevant files have been found.\n"); //Need to improve error handling
         }
-        else if (DotIniFiles?.Count >= 2 && DotPyFiles?.Count == 1)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("ATTENTION! Multiple profiles detected!\nPlease choose one.");
-            HandleMultipleProfiles(DotIniFiles);
-            toExtract.AddRange(DotPyFiles);
-        }
-        else if (DotIniFiles?.Count >= 2 && DotPyFiles?.Count >= 2)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("ATTENTION! Multiple profiles detected!\nPlease choose one.");
-            HandleMultipleProfiles(DotIniFiles);
-            HandleMultipleProfiles(DotPyFiles);
-        }
-        else 
-        {
-            toExtract.AddRange(DotIniFiles);
-            toExtract.AddRange(DotPyFiles);
-        }
+
+        HandleMultipleProfiles(DotIniFiles);
+        HandleMultipleProfiles(DotPyFiles);
+
         foreach (IArchiveEntry entry in toExtract)
         {
-            string filename = entry.Key;
-            if (entry.Key.Contains('/')) { filename = entry.Key.Split('/').Last(); }
+            string filename = entry.Key.Contains('/', StringComparison.OrdinalIgnoreCase) ? entry.Key.Split('/')[^1] : entry.Key;
             string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, filename));
             installedFiles.Add(fullDestinationPath);
             using Stream stream = entry.OpenEntryStream();
@@ -71,44 +57,40 @@ class ArchiveExtractor
             stream.CopyTo(writer);
         }
     }
-    bool IsDotIni(string fileName)
-    {
-        if (fileName.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
-        { return true; }
-        return false;
-    }
-    bool IsDotPy(string fileName)
-    {
-        if (fileName.EndsWith(".py", StringComparison.OrdinalIgnoreCase))
-        { return true; }
-        return false;
-    }
-    void HandleSupportedFile(List<IArchiveEntry> list, IArchiveEntry entry)
+
+    private void HandleSupportedFile(List<IArchiveEntry> list, IArchiveEntry entry)
     {
         list.Add(entry);
         string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{GetICAOcode(entry.Key)}*");
         deletedFiles.AddRange(matchingFiles);
         matchingFiles.ForEach(filePath => File.Delete(filePath));
     }
-    void HandleMultipleProfiles(List<IArchiveEntry> list)
+
+    private void HandleMultipleProfiles(List<IArchiveEntry> list)
     {
+        if (list.Count == 1)
+        {
+            toExtract.Add(list[0]);
+            return;
+        }
         Console.ForegroundColor = ConsoleColor.DarkYellow;
+        Console.WriteLine("ATTENTION! Multiple profiles detected!\nPlease choose one.");
         Console.WriteLine($"\n{list.First().Key.Split('.').Last().ToUpper()} files:");
         for (int i = 0; i < list.Count; i++)
         {
             Console.WriteLine($"[{i}] {list[i].Key}");
         }
-        Console.Write("Choice: ");
-        Console.ForegroundColor = Default;
-        short choice;
-        if (short.TryParse(Console.ReadLine(), out choice))
+        Console.Write("Enter your choice: ");
+        Console.ForegroundColor = defaultColor;
+        bool parsed = false;
+        bool valid = false;
+        short choice = -1;
+        while (!parsed || !valid)
         {
-            toExtract.Add(list[choice]);
+            parsed = short.TryParse(Console.ReadLine(), out choice);
+            valid = choice >= 0 && choice < list.Count;
         }
-        else
-        {
-            throw new Exception("ERROR: Choice is empty.");
-        }
+        toExtract.Add(list[choice]);
     }
     public string DisplayInstalledFiles()
     {
@@ -118,12 +100,11 @@ class ArchiveExtractor
     {
         return string.Join('\n', deletedFiles);
     }
-    string GetICAOcode(string fileName)
+
+    private static string GetICAOcode(string fileName)
     {
-        if (fileName.Contains('/'))
-        {
-            return fileName.Split('/').Last().Split('-')[0];
-        }
-        return fileName.Split('-')[0];
+        return fileName.Contains('/', StringComparison.OrdinalIgnoreCase)
+            ? fileName.Split('/').Last().Split('-')[0]
+            : fileName.Split('-')[0];
     }
 }
