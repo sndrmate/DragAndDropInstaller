@@ -75,7 +75,7 @@ internal class ArchiveExtractor
         }
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.WriteLine("ATTENTION! Multiple profiles detected!\nPlease choose one.");
-        Console.WriteLine($"\n{list[0].Key.Split('.').Last().ToUpperInvariant()} files:");
+        Console.WriteLine($"\n{list[0].Key.Split('.')[^1].ToUpperInvariant()} files:");
         for (int i = 0; i < list.Count; i++)
         {
             Console.WriteLine($"[{i}] {list[i].Key}");
@@ -103,7 +103,7 @@ internal class ArchiveExtractor
     private static string GetICAOcode(string fileName)
     {
         return fileName.Contains('/', StringComparison.OrdinalIgnoreCase)
-            ? fileName.Split('/').Last().Split('-')[0]
+            ? fileName.Split('/')[^1].Split('-')[0]
             : fileName.Split('-')[0];
     }
 }
