@@ -75,20 +75,20 @@ internal class ArchiveExtractor
         }
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.WriteLine("ATTENTION! Multiple profiles detected!\nPlease choose one.");
-        Console.WriteLine($"\n{list.First().Key.Split('.').Last().ToUpper()} files:");
+        Console.WriteLine($"\n{list.First().Key.Split('.').Last().ToUpperInvariant()} files:");
         for (int i = 0; i < list.Count; i++)
         {
             Console.WriteLine($"[{i}] {list[i].Key}");
         }
         Console.Write("Enter your choice: ");
         Console.ForegroundColor = defaultColor;
-        bool parsed = false;
+        // bool parsed = false;
         bool valid = false;
         short choice = -1;
-        while (!parsed || !valid)
+        while (!valid)
         {
-            parsed = short.TryParse(Console.ReadLine(), out choice);
-            valid = choice >= 0 && choice < list.Count;
+            // parsed = short.TryParse(Console.ReadLine(), out choice);
+            valid = short.TryParse(Console.ReadLine(), out choice) && choice >= 0 && choice < list.Count;
         }
         toExtract.Add(list[choice]);
     }
