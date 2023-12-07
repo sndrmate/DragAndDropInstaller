@@ -1,104 +1,60 @@
 ﻿/*
-  Copyright (c) smatthew 2023
-
-  All rights reserved. 
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-  of the Software, and to permit persons to whom the Software is furnished to do so, 
-  subject to the following conditions:
-
-  1. The above copyright notice and this permission notice shall be included in all 
-  copies or substantial portions of the Software.
-
-  2. No part of this software may be modified, sold, or resold without the explicit
-  written permission of the copyright holder.
-
-  THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-  INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-  PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE
-  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-using System.IO.Compression;
+ * Copyright (c) 2023 smatthew
+ * All rights reserved.
+ */
+namespace DragAndDropInstaller;
 
 class Program
 {
     static void Main(string[] args)
     {
-        Console.Title = "GSX Pro Profile Installer v1.0 | by smatthew & FatGingerHead";
-        var DefaultColor = Console.ForegroundColor;
-        string extractPath = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)+ "\\Virtuali\\GSX\\MSFS");
-        if (args.Length > 0)
-        {
-            try
-            {
-                string ZipPath = args[0];
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"You dropped the file: {ZipPath}");
-                Console.ForegroundColor = DefaultColor;
+        Console.Title = "Drag&Drop Installer v1.0";
+        ConsoleColor DefaultColor = Console.ForegroundColor;
+        string destinationPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
 
-                using (ZipArchive archive = ZipFile.OpenRead(ZipPath))
-                {
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        string icao_code = entry.FullName.Split('-')[0];
-                        string[] matchingFiles = Directory.GetFiles(extractPath, $"*{icao_code}*");
-
-                        if (matchingFiles.Any())
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("\nFiles overwritten:");
-                            Console.ForegroundColor = DefaultColor;
-                            foreach (string file in matchingFiles)
-                            {
-                                Console.WriteLine(file);
-                                File.Delete(file);
-                            }
-                        }
-                    }
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("\nExtracted files:");
-                    Console.ForegroundColor = DefaultColor;
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        if (entry.FullName.EndsWith(".py", StringComparison.OrdinalIgnoreCase) || entry.FullName.EndsWith(".ini", StringComparison.OrdinalIgnoreCase))
-                        {   
-                            string finalExtractPath = Path.GetFullPath(Path.Combine(extractPath, entry.FullName));
-
-                            if (finalExtractPath.StartsWith(extractPath, StringComparison.Ordinal))
-                            {
-                                Console.WriteLine(finalExtractPath);
-                                entry.ExtractToFile(finalExtractPath);
-                            }
-                                
-                        }
-                    }
-                }
-                Console.WriteLine("\nPress any key to exit.");
-            }
-            catch (Exception e)
-            {
-
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.ForegroundColor = DefaultColor;
-                Console.WriteLine("\nPress any key to exit.");
-                Console.ReadKey();
-            }
-            
-        }
-        else
+        if (args.Length == 0)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Please drag and drop a file onto the executable.");
+            Console.WriteLine("ERROR: To install a GSX Pro Profile, please drag and drop the archive onto the executable.");
             Console.ForegroundColor = DefaultColor;
             Console.WriteLine("\nPress any key to exit.");
+            Console.ReadKey();
+            return;
         }
-        Console.ReadKey();
+
+        try
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("You initiated the installation process from this archive:");
+            Console.ForegroundColor = DefaultColor;
+            Console.WriteLine(args[0]);
+            Console.WriteLine();
+
+            ArchiveExtractor extract = new(destinationPath);
+            extract.ExtractFiles(args[0]);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nProfile installed:\n");
+            Console.ForegroundColor = DefaultColor;
+            Console.WriteLine(extract.DisplayInstalledFiles());
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\nProfile overwritten:\n");
+            Console.ForegroundColor = DefaultColor;
+            Console.WriteLine(extract.DisplayRemovedFiles()); 
+            Console.ForegroundColor = DefaultColor;
+            Console.WriteLine();
+        }
+        catch (Exception e)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(e.ToString());
+        }
+        finally
+        {
+            Console.ForegroundColor = DefaultColor;
+            Console.WriteLine("\nPress any key to exit.");
+            Console.ReadKey();
+        }
     }
 }
