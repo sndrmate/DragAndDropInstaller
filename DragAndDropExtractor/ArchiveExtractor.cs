@@ -75,7 +75,7 @@ internal class ArchiveExtractor
         }
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.WriteLine("ATTENTION! Multiple profiles detected!\nPlease choose one.");
-        Console.WriteLine($"\n{list.First().Key.Split('.').Last().ToUpperInvariant()} files:");
+        Console.WriteLine($"\n{list[0].Key.Split('.').Last().ToUpperInvariant()} files:");
         for (int i = 0; i < list.Count; i++)
         {
             Console.WriteLine($"[{i}] {list[i].Key}");
