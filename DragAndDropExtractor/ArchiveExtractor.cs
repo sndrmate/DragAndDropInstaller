@@ -68,8 +68,13 @@ internal class ArchiveExtractor
 
     private void HandleMultipleProfiles(List<IArchiveEntry> list)
     {
-        if (list.Count == 1)
+        if (list.Count <= 1)
         {
+
+            if (list.Count < 1)
+            {
+                return;
+            }
             toExtract.Add(list[0]);
             return;
         }
