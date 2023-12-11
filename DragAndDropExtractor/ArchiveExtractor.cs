@@ -4,6 +4,7 @@
  */
 using SharpCompress;
 using SharpCompress.Archives;
+using SharpCompress.Common;
 
 namespace DragAndDropInstaller;
 
@@ -49,8 +50,9 @@ internal class ArchiveExtractor
 
         foreach (IArchiveEntry entry in toExtract)
         {
-            string filename = entry.Key.Contains('/', StringComparison.OrdinalIgnoreCase) ? entry.Key.Split('/')[^1] : entry.Key;
-            string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, filename));
+            Console.WriteLine("Entry key:");
+            Console.WriteLine(entry.Key);
+            string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, GetFileName(entry.Key)));
             installedFiles.Add(fullDestinationPath);
             using Stream stream = entry.OpenEntryStream();
             using FileStream writer = File.OpenWrite(fullDestinationPath);
@@ -104,10 +106,30 @@ internal class ArchiveExtractor
         return string.Join('\n', deletedFiles);
     }
 
+    private static string GetFileName(string fileName)
+    {
+        switch (fileName)
+        {
+            case string fileN when fileN.Contains('/', StringComparison.OrdinalIgnoreCase):
+                return fileName.Split('/')[^1];
+
+            case string fileN when fileN.Contains('\\', StringComparison.OrdinalIgnoreCase):
+                return fileName.Split('\\')[^1];
+            default:
+                return fileName;
+        }
+    }
     private static string GetICAOcode(string fileName)
     {
-        return fileName.Contains('/', StringComparison.OrdinalIgnoreCase)
-            ? fileName.Split('/')[^1].Split('-')[0]
-            : fileName.Split('-')[0];
+        switch (fileName)
+        {
+            case string fileN when fileN.Contains('/', StringComparison.OrdinalIgnoreCase):
+                return fileName.Split('/')[^1].Split('-')[0];
+
+            case string fileN when fileN.Contains('\\', StringComparison.OrdinalIgnoreCase):
+                return fileName.Split('\\')[^1].Split('-')[0];
+            default:
+                return fileName;
+        }
     }
 }
