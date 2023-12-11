@@ -2,6 +2,7 @@
  * Copyright (c) 2023 smatthew
  * All rights reserved.
  */
+using System.Diagnostics;
 using SharpCompress;
 using SharpCompress.Archives;
 
@@ -16,6 +17,8 @@ internal class ArchiveExtractor
     private readonly List<string> deletedFiles = new();
     private readonly List<string> installedFiles = new();
     private readonly ConsoleColor defaultColor = Console.ForegroundColor;
+    private bool multipleProfileFound = false;
+    UserInterface UI = new();
 
     public ArchiveExtractor(string destinationPath)
     {
@@ -24,6 +27,8 @@ internal class ArchiveExtractor
     }
     public void ExtractFiles(string archivePath)
     {
+        Stopwatch sw = new Stopwatch();
+
         //Error handling for unsupported archive types (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
         using IArchive archive = ArchiveFactory.Open(archivePath);
         foreach (IArchiveEntry entry in archive.Entries)
@@ -46,7 +51,7 @@ internal class ArchiveExtractor
 
         HandleMultipleProfiles(DotIniFiles);
         HandleMultipleProfiles(DotPyFiles);
-
+        sw.Start();
         foreach (IArchiveEntry entry in toExtract)
         {
             string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, GetFileName(entry.Key)));
@@ -55,8 +60,10 @@ internal class ArchiveExtractor
             using FileStream writer = File.OpenWrite(fullDestinationPath);
             stream.CopyTo(writer);
         }
+        sw.Stop();
+        UI.DisplayChanges(installedFiles, deletedFiles);
+        UI.DisplayElapsedTime(sw);
     }
-
     private void HandleSupportedFile(List<IArchiveEntry> list, IArchiveEntry entry)
     {
         list.Add(entry);
@@ -76,31 +83,19 @@ internal class ArchiveExtractor
             toExtract.Add(list[0]);
             return;
         }
-        Console.ForegroundColor = ConsoleColor.DarkYellow;
-        Console.WriteLine("ATTENTION! Multiple profiles detected!\nPlease choose one.");
-        Console.WriteLine($"\n{list[0].Key.Split('.')[^1].ToUpperInvariant()} files:");
-        for (int i = 0; i < list.Count; i++)
+        if (!multipleProfileFound)
         {
-            Console.WriteLine($"[{i}] {list[i].Key}");
+            UI.AttentionMultipleProfiles();
+            multipleProfileFound = true;
         }
-        Console.Write("Enter your choice: ");
-        Console.ForegroundColor = defaultColor;
-
-        bool valid = false;
-        short choice = -1;
-        while (!valid)
+        string choice = UI.MultipleProfilesChoice(list);
+        foreach (IArchiveEntry entry in list)
         {
-            valid = short.TryParse(Console.ReadLine(), out choice) && choice >= 0 && choice < list.Count;
+            if (entry.Key == choice)
+            {
+                toExtract.Add(entry);
+            }
         }
-        toExtract.Add(list[choice]);
-    }
-    public string DisplayInstalledFiles()
-    {
-        return string.Join('\n', installedFiles);
-    }
-    public string DisplayRemovedFiles()
-    {
-        return string.Join('\n', deletedFiles);
     }
 
     private static string GetFileName(string fileName)
