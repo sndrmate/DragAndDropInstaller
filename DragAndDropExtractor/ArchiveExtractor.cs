@@ -4,7 +4,6 @@
  */
 using SharpCompress;
 using SharpCompress.Archives;
-using SharpCompress.Common;
 
 namespace DragAndDropInstaller;
 
@@ -50,8 +49,6 @@ internal class ArchiveExtractor
 
         foreach (IArchiveEntry entry in toExtract)
         {
-            Console.WriteLine("Entry key:");
-            Console.WriteLine(entry.Key);
             string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, GetFileName(entry.Key)));
             installedFiles.Add(fullDestinationPath);
             using Stream stream = entry.OpenEntryStream();
