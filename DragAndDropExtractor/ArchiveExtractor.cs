@@ -69,7 +69,6 @@ internal class ArchiveExtractor
     {
         if (list.Count <= 1)
         {
-
             if (list.Count < 1)
             {
                 return;
