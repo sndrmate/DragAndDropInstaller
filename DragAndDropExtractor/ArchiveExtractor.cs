@@ -16,13 +16,9 @@ internal class ArchiveExtractor
     private readonly List<IArchiveEntry> DotIniFiles = new();
     private readonly List<string> deletedFiles = new();
     private readonly List<string> installedFiles = new();
-    private readonly ConsoleColor defaultColor = Console.ForegroundColor;
-    private bool multipleProfileFound = false;
-    UserInterface UI = new();
-
+    private bool multipleProfileFound;
     public ArchiveExtractor(string destinationPath)
     {
-
         this.destinationPath = destinationPath;
     }
     public void ExtractFiles(string archivePath)
@@ -61,8 +57,8 @@ internal class ArchiveExtractor
             stream.CopyTo(writer);
         }
         sw.Stop();
-        UI.DisplayChanges(installedFiles, deletedFiles);
-        UI.DisplayElapsedTime(sw);
+        UserInterface.DisplayChanges(installedFiles, deletedFiles);
+        UserInterface.DisplayElapsedTime(sw);
     }
     private void HandleSupportedFile(List<IArchiveEntry> list, IArchiveEntry entry)
     {
@@ -85,10 +81,10 @@ internal class ArchiveExtractor
         }
         if (!multipleProfileFound)
         {
-            UI.AttentionMultipleProfiles();
+            UserInterface.AttentionMultipleProfiles();
             multipleProfileFound = true;
         }
-        string choice = UI.MultipleProfilesChoice(list);
+        string choice = UserInterface.MultipleProfilesChoice(list);
         foreach (IArchiveEntry entry in list)
         {
             if (entry.Key == choice)
