@@ -2,8 +2,6 @@
  * Copyright (c) 2023 smatthew
  * All rights reserved.
  */
-using System.Globalization;
-
 namespace DragAndDropInstaller;
 
 public static class Program

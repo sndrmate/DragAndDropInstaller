@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.Intrinsics;
+﻿using System.Diagnostics;
 using SharpCompress.Archives;
-using SharpCompress.Common;
 using Spectre.Console;
 
 
@@ -10,38 +7,39 @@ namespace DragAndDropInstaller;
 
 internal class UserInterface
 {
-
-    public UserInterface() { }
+    private UserInterface() { }
     public static void UpdateReminder(string currentVersion, string localVersion)
     {
         Console.Title = $"Drag&Drop Installer v{localVersion} OUTDATED";
-        var rule = new Rule($"[red]This version of the Drag&Drop Installer is outdated. Please download the v{currentVersion} on flightsim.to![/]");
-        rule.Justification = Justify.Left;
+        var rule = new Rule($"[red]This version of the Drag&Drop Installer is outdated. Please download the v{currentVersion} on flightsim.to![/]")
+        {
+            Justification = Justify.Left
+        };
         AnsiConsole.Write(rule);
         AnsiConsole.WriteLine();
     }
     public static void InitiateInstall(string installPath)
     {
-        var rule = new Rule("[deepskyblue1]You initiated the installation process from this archive:[/]");
-        rule.Justification = Justify.Left;
+        var rule = new Rule("[deepskyblue1]You initiated the installation process from this archive:[/]")
+        {
+            Justification = Justify.Left
+        };
         AnsiConsole.Write(rule);
         AnsiConsole.WriteLine();
-        //AnsiConsole.MarkupLine("[blue]You initiated the installation process from this archive:[/]");
         AnsiConsole.WriteLine($"{installPath}\n");
     }
     public static void AttentionMultipleProfiles()
     {
-        var rule = new Rule("[lightgoldenrod2_1]ATTENTION! Multiple profiles detected![/]");
-        rule.Justification = Justify.Left;
+        var rule = new Rule("[lightgoldenrod2_1]ATTENTION! Multiple profiles detected![/]")
+        {
+            Justification = Justify.Left
+        };
         AnsiConsole.Write(rule);
         AnsiConsole.WriteLine();
-        //AnsiConsole.MarkupLine("[gold1]ATTENTION! Multiple profiles detected![/] ");
     }
     public static string MultipleProfilesChoice(List<IArchiveEntry> entries)
     {
-        string selectedEntry;
-
-        SelectionPrompt<string> prompt = new SelectionPrompt<string>();
+        SelectionPrompt<string> prompt = new();
         foreach (IArchiveEntry entry in entries)
         {
             prompt.AddChoice(entry.Key);
@@ -51,15 +49,17 @@ internal class UserInterface
         prompt.HighlightStyle(new Style().Foreground(Color.LightGoldenrod2_1));
         prompt.PageSize(5);
         prompt.MoreChoicesText("[grey](Move up and down to reveal more choices)[/]");
-        selectedEntry = AnsiConsole.Prompt(prompt);
+        string selectedEntry = AnsiConsole.Prompt(prompt);
         AnsiConsole.MarkupLine($"[lightgoldenrod2_1]File selected:[/]\n[white] {selectedEntry}[/]");
         AnsiConsole.WriteLine();
         return selectedEntry;
     }
     public static void DisplayChanges(List<string> installedFiles, List<string> deletedFiles)
     {
-        var rule = new Rule("[deepskyblue1]Installation results:[/]");
-        rule.Justification = Justify.Left;
+        var rule = new Rule("[deepskyblue1]Installation results:[/]")
+        {
+            Justification = Justify.Left
+        };
         AnsiConsole.Write(rule);
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[green]Profile(s) installed:[/]");

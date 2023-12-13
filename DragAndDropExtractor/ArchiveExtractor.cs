@@ -8,22 +8,18 @@ using SharpCompress.Archives;
 
 namespace DragAndDropInstaller;
 
-internal class ArchiveExtractor
+internal class ArchiveExtractor(string destinationPath)
 {
-    private readonly string destinationPath;
-    private readonly List<IArchiveEntry> toExtract = new();
-    private readonly List<IArchiveEntry> DotPyFiles = new();
-    private readonly List<IArchiveEntry> DotIniFiles = new();
-    private readonly List<string> deletedFiles = new();
-    private readonly List<string> installedFiles = new();
+    private readonly List<IArchiveEntry> toExtract = [];
+    private readonly List<IArchiveEntry> DotPyFiles = [];
+    private readonly List<IArchiveEntry> DotIniFiles = [];
+    private readonly List<string> deletedFiles = [];
+    private readonly List<string> installedFiles = [];
     private bool multipleProfileFound;
-    public ArchiveExtractor(string destinationPath)
-    {
-        this.destinationPath = destinationPath;
-    }
+
     public void ExtractFiles(string archivePath)
     {
-        Stopwatch sw = new Stopwatch();
+        Stopwatch sw = new();
 
         //Error handling for unsupported archive types (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
         using IArchive archive = ArchiveFactory.Open(archivePath);
@@ -96,28 +92,20 @@ internal class ArchiveExtractor
 
     private static string GetFileName(string fileName)
     {
-        switch (fileName)
+        return fileName switch
         {
-            case string fileN when fileN.Contains('/', StringComparison.OrdinalIgnoreCase):
-                return fileName.Split('/')[^1];
-
-            case string fileN when fileN.Contains('\\', StringComparison.OrdinalIgnoreCase):
-                return fileName.Split('\\')[^1];
-            default:
-                return fileName;
-        }
+            string fileN when fileN.Contains('/', StringComparison.OrdinalIgnoreCase) => fileName.Split('/')[^1],
+            string fileN when fileN.Contains('\\', StringComparison.OrdinalIgnoreCase) => fileName.Split('\\')[^1],
+            _ => fileName,
+        };
     }
     private static string GetICAOcode(string fileName)
     {
-        switch (fileName)
+        return fileName switch
         {
-            case string fileN when fileN.Contains('/', StringComparison.OrdinalIgnoreCase):
-                return fileName.Split('/')[^1].Split('-')[0];
-
-            case string fileN when fileN.Contains('\\', StringComparison.OrdinalIgnoreCase):
-                return fileName.Split('\\')[^1].Split('-')[0];
-            default:
-                return fileName;
-        }
+            string fileN when fileN.Contains('/', StringComparison.OrdinalIgnoreCase) => fileName.Split('/')[^1].Split('-')[0],
+            string fileN when fileN.Contains('\\', StringComparison.OrdinalIgnoreCase) => fileName.Split('\\')[^1].Split('-')[0],
+            _ => fileName,
+        };
     }
 }
