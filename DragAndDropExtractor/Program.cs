@@ -29,11 +29,7 @@ public static class Program
             UserInterface.InitiateInstall(args[0]);
 
             ArchiveExtractor extract = new(destinationPath);
-            for (int i = 0; i < args.Length; i++)
-            {
-                extract.ExtractFiles(args[i]);
-            }
-            
+            extract.ExtractFiles(args[0]);
         }
         catch (Exception e)
         {

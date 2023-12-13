@@ -4,7 +4,7 @@ namespace DragAndDropInstaller;
 
 internal class VersionChecker
 {
-    public VersionChecker() {}
+    public VersionChecker() { }
 
     public static void CheckVersion(string localVersion)
     {

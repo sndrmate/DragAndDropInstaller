@@ -11,7 +11,7 @@ namespace DragAndDropInstaller;
 internal class UserInterface
 {
 
-    public UserInterface() {}
+    public UserInterface() { }
     public static void UpdateReminder(string currentVersion, string localVersion)
     {
         Console.Title = $"Drag&Drop Installer v{localVersion} OUTDATED";
