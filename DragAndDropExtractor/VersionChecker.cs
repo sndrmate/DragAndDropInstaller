@@ -10,17 +10,27 @@ internal class VersionChecker
     {
         try
         {
-            XmlDocument currentVersionXML = new XmlDocument();
-            currentVersionXML.Load(url);
-            string currentVersion = currentVersionXML.SelectSingleNode("/CurrentVersion")?.InnerText ?? string.Empty;
-            if (localVersion != currentVersion)
+            using (XmlReader reader = XmlReader.Create(url))
             {
-                UserInterface.UpdateReminder(currentVersion, localVersion);
+                string currentVersion = string.Empty;
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "CurrentVersion")
+                    {
+                        reader.Read();
+                        currentVersion = reader.Value;
+                        break;
+                    }
+                }
+
+                if (!string.Equals(localVersion, currentVersion, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    UserInterface.UpdateReminder(currentVersion, localVersion);
+                }
             }
         }
         catch (Exception)
         {
-
             return;
         }
     }
