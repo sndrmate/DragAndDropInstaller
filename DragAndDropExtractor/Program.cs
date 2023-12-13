@@ -10,8 +10,8 @@ public static class Program
 {
     public static void Main(string[] args)
     {
-        string version = "v1.1-dev";
-        Console.Title = $"Drag&Drop Installer {version}";
+        string version = "1.1-dev";
+        Console.Title = $"Drag&Drop Installer v{version}";
         string destinationPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
 
         if (args.Length == 0)

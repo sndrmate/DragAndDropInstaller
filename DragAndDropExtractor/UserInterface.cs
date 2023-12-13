@@ -15,7 +15,7 @@ internal class UserInterface
     public static void UpdateReminder(string currentVersion, string localVersion)
     {
         Console.Title = $"Drag&Drop Installer v{localVersion} OUTDATED";
-        var rule = new Rule($"[red]This version of the Drag&Drop Installer is outdated. Please download the {currentVersion} on flightsim.to![/]");
+        var rule = new Rule($"[red]This version of the Drag&Drop Installer is outdated. Please download the v{currentVersion} on flightsim.to![/]");
         rule.Justification = Justify.Left;
         AnsiConsole.Write(rule);
         AnsiConsole.WriteLine();
