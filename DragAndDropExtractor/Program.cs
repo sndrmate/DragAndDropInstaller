@@ -24,12 +24,16 @@ public static class Program
 
         try
         {
-            VersionChecker.CheckVersion(version, "https://sndrmate.github.io/docs/ddi_version.xml");
+            VersionChecker.CheckVersion(version);
 
             UserInterface.InitiateInstall(args[0]);
 
             ArchiveExtractor extract = new(destinationPath);
-            extract.ExtractFiles(args[0]);
+            for (int i = 0; i < args.Length; i++)
+            {
+                extract.ExtractFiles(args[i]);
+            }
+            
         }
         catch (Exception e)
         {

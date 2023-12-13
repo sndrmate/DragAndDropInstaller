@@ -25,7 +25,7 @@ internal class UserInterface
         var rule = new Rule("[deepskyblue1]You initiated the installation process from this archive:[/]");
         rule.Justification = Justify.Left;
         AnsiConsole.Write(rule);
-
+        AnsiConsole.WriteLine();
         //AnsiConsole.MarkupLine("[blue]You initiated the installation process from this archive:[/]");
         AnsiConsole.WriteLine($"{installPath}\n");
     }
@@ -34,6 +34,7 @@ internal class UserInterface
         var rule = new Rule("[lightgoldenrod2_1]ATTENTION! Multiple profiles detected![/]");
         rule.Justification = Justify.Left;
         AnsiConsole.Write(rule);
+        AnsiConsole.WriteLine();
         //AnsiConsole.MarkupLine("[gold1]ATTENTION! Multiple profiles detected![/] ");
     }
     public static string MultipleProfilesChoice(List<IArchiveEntry> entries)
@@ -52,15 +53,18 @@ internal class UserInterface
         prompt.MoreChoicesText("[grey](Move up and down to reveal more choices)[/]");
         selectedEntry = AnsiConsole.Prompt(prompt);
         AnsiConsole.MarkupLine($"[lightgoldenrod2_1]File selected:[/]\n[white] {selectedEntry}[/]");
+        AnsiConsole.WriteLine();
         return selectedEntry;
     }
     public static void DisplayChanges(List<string> installedFiles, List<string> deletedFiles)
     {
-        var rule = new Rule("[deepskyblue1]Installation results:\n[/]");
+        var rule = new Rule("[deepskyblue1]Installation results:[/]");
         rule.Justification = Justify.Left;
         AnsiConsole.Write(rule);
+        AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[green]Profile(s) installed:[/]");
         AnsiConsole.WriteLine(string.Join('\n', installedFiles));
+        AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[red]Profile(s) overwritten:[/]");
         AnsiConsole.WriteLine(string.Join('\n', deletedFiles));
     }

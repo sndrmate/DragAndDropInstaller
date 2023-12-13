@@ -6,11 +6,11 @@ internal class VersionChecker
 {
     public VersionChecker() {}
 
-    public static void CheckVersion(string localVersion, string url)
+    public static void CheckVersion(string localVersion)
     {
         try
         {
-            using (XmlReader reader = XmlReader.Create(url))
+            using (XmlReader reader = XmlReader.Create("https://sndrmate.github.io/docs/ddi_version.xml"))
             {
                 string currentVersion = string.Empty;
                 while (reader.Read())
@@ -23,7 +23,7 @@ internal class VersionChecker
                     }
                 }
 
-                if (!string.Equals(localVersion, currentVersion, System.StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(localVersion, currentVersion, StringComparison.OrdinalIgnoreCase))
                 {
                     UserInterface.UpdateReminder(currentVersion, localVersion);
                 }
