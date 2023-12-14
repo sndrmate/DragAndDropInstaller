@@ -13,14 +13,13 @@ internal class ArchiveExtractor(string destinationPath)
     private readonly List<IArchiveEntry> toExtract = [];
     private readonly List<IArchiveEntry> DotPyFiles = [];
     private readonly List<IArchiveEntry> DotIniFiles = [];
+    private readonly List<IArchiveEntry> DotCfgFiles = [];
     private readonly List<string> deletedFiles = [];
     private readonly List<string> installedFiles = [];
     private bool multipleProfileFound;
 
     public void ExtractFiles(string archivePath)
     {
-        Stopwatch sw = new();
-
         //Error handling for unsupported archive types (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
         using IArchive archive = ArchiveFactory.Open(archivePath);
         foreach (IArchiveEntry entry in archive.Entries)
@@ -33,19 +32,23 @@ internal class ArchiveExtractor(string destinationPath)
                 case string pyFile when pyFile.EndsWith(".py", StringComparison.OrdinalIgnoreCase):
                     HandleSupportedFile(DotPyFiles, entry);
                     break;
+                case string cfgFile when cfgFile.EndsWith(".cfg", StringComparison.OrdinalIgnoreCase):
+                    HandleSupportedFile(DotCfgFiles, entry);
+                    break;
             }
         }
 
-        if (!DotIniFiles.Any() && !DotPyFiles.Any())
+        if (DotIniFiles.Count == 0 && DotPyFiles.Count == 0 && DotCfgFiles.Count == 0)
         {
             throw new Exception("ERROR: The archive is empty or no relevant files have been found.\n"); //Need to improve error handling
         }
 
         HandleMultipleProfiles(DotIniFiles);
         HandleMultipleProfiles(DotPyFiles);
-        sw.Start();
+        Stopwatch sw = Stopwatch.StartNew();
         foreach (IArchiveEntry entry in toExtract)
         {
+            //needs to be modified for cfg files (cfg files needs to be extract with its folder)
             string fullDestinationPath = Path.GetFullPath(Path.Combine(destinationPath, GetFileName(entry.Key)));
             installedFiles.Add(fullDestinationPath);
             using Stream stream = entry.OpenEntryStream();
@@ -58,6 +61,7 @@ internal class ArchiveExtractor(string destinationPath)
     }
     private void HandleSupportedFile(List<IArchiveEntry> list, IArchiveEntry entry)
     {
+        //needs to be modified for cfg files, there should be no deletion if its a .cfg file
         list.Add(entry);
         string[] matchingFiles = Directory.GetFiles(destinationPath, $"*{GetICAOcode(entry.Key)}*");
         deletedFiles.AddRange(matchingFiles);
@@ -68,11 +72,11 @@ internal class ArchiveExtractor(string destinationPath)
     {
         if (list.Count <= 1)
         {
-            if (list.Count < 1)
+            if (list.Count == 1)
             {
+                toExtract.Add(list[0]);
                 return;
             }
-            toExtract.Add(list[0]);
             return;
         }
         if (!multipleProfileFound)
@@ -81,13 +85,8 @@ internal class ArchiveExtractor(string destinationPath)
             multipleProfileFound = true;
         }
         string choice = UserInterface.MultipleProfilesChoice(list);
-        foreach (IArchiveEntry entry in list)
-        {
-            if (entry.Key == choice)
-            {
-                toExtract.Add(entry);
-            }
-        }
+        IArchiveEntry selectedEntry = list.Find(entry => entry.Key == choice);
+        toExtract.Add(selectedEntry);
     }
 
     private static string GetFileName(string fileName)
