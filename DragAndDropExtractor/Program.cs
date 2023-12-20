@@ -10,7 +10,6 @@ public static class Program
     {
         string version = "1.1-dev";
         Console.Title = $"Drag&Drop Installer v{version}";
-        string destinationPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
 
         if (args.Length == 0)
         {
@@ -26,7 +25,7 @@ public static class Program
 
             UserInterface.InitiateInstall(args[0]);
 
-            ArchiveExtractor extract = new(destinationPath);
+            ArchiveExtractor extract = new();
             extract.ExtractFiles(args[0]);
         }
         catch (Exception e)
