@@ -8,15 +8,15 @@ namespace DragAndDropInstaller;
 internal class UserInterface
 {
     private UserInterface() { }
-    public static void UpdateReminder(string currentVersion, string localVersion)
+    public static async Task UpdateReminderAsync(string currentVersion, string localVersion)
     {
-        Console.Title = $"Drag&Drop Installer v{localVersion} OUTDATED";
-        var rule = new Rule($"[red]This version of the Drag&Drop Installer is outdated. Please download the v{currentVersion} on flightsim.to![/]")
-        {
-            Justification = Justify.Left
-        };
-        AnsiConsole.Write(rule);
-        AnsiConsole.WriteLine();
+        Console.Title = $"Drag&Drop Installer v{localVersion} !!!THIS VERSION IS OUTDATED, PLEASE DOWNLOAD THE NEWEST VERSION FROM FLIGHTSIM.TO!!!";
+        //var rule = new Rule($"[red]This version of the Drag&Drop Installer is outdated. Please download the v{currentVersion} on flightsim.to![/]")
+        //{
+        //    Justification = Justify.Left
+        //};
+        //AnsiConsole.Write(rule);
+        //AnsiConsole.WriteLine();
     }
     public static void InitiateInstall(string installPath)
     {

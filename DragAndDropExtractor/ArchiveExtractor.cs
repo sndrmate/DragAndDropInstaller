@@ -64,12 +64,12 @@ internal class ArchiveExtractor()
                 string ContainingDirectory;
                 if (entry.Key.Contains('\\'))
                 {
-                    
+
                     ContainingDirectory = entry.Key.Split('\\')[entry.Key.Split('\\').Length - 2];
                 }
                 else
                 {
-                     ContainingDirectory = entry.Key.Split('/')[entry.Key.Split('/').Length - 2];
+                    ContainingDirectory = entry.Key.Split('/')[entry.Key.Split('/').Length - 2];
                 }
                 string PathToDirectory = Path.GetFullPath(Path.Combine(airplanesPath, ContainingDirectory));
                 if (!Directory.Exists(PathToDirectory))
@@ -100,7 +100,7 @@ internal class ArchiveExtractor()
         {
             list.Add(entry);
             return;
-        }    
+        }
         list.Add(entry);
         string[] matchingFiles = Directory.GetFiles(profilesPath, $"*{GetICAOcode(entry.Key)}*");
         deletedFiles.AddRange(matchingFiles);

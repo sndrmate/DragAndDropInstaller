@@ -6,30 +6,39 @@ internal class VersionChecker
 {
     private VersionChecker() { }
 
-    public static void CheckVersion(string localVersion)
+    public static async Task CheckVersionAsync(string localVersion)
     {
         try
         {
-            using XmlReader reader = XmlReader.Create("https://sndrmate.github.io/docs/ddi_version.xml");
-            string currentVersion = string.Empty;
-            while (reader.Read())
+            string xmlUrl = "https://sndrmate.github.io/docs/ddi_version.xml";
+
+            string currentVersion = await Task.Run(() =>
             {
-                if (reader.NodeType == XmlNodeType.Element && reader.Name == "CurrentVersion")
+                using (XmlReader reader = XmlReader.Create(xmlUrl))
                 {
-                    reader.Read();
-                    currentVersion = reader.Value;
-                    break;
+                    while (reader.Read())
+                    {
+                        if (reader.NodeType == XmlNodeType.Element && reader.Name == "CurrentVersion")
+                        {
+                            reader.Read();
+                            return reader.Value;
+                        }
+                    }
+                    return string.Empty;
                 }
-            }
+            });
+
             if (!string.Equals(localVersion, currentVersion, StringComparison.OrdinalIgnoreCase))
             {
-                UserInterface.UpdateReminder(currentVersion, localVersion);
+                await UserInterface.UpdateReminderAsync(currentVersion, localVersion);
             }
-
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Console.WriteLine(e);
+            // Handle exceptions as needed
             return;
         }
     }
+
 }
