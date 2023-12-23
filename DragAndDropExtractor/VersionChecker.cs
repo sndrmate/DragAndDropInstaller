@@ -10,7 +10,7 @@ internal class VersionChecker
     {
         try
         {
-            string xmlUrl = "https://sndrmate.github.io/docs/ddi_version.xml";
+            string xmlUrl = "https://sndrmate.github.io/docs/ddi_version.xml"; // this should be json
 
             string currentVersion = await Task.Run(() =>
             {
@@ -35,7 +35,7 @@ internal class VersionChecker
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine(e); //for debugging
             // Handle exceptions as needed
             return;
         }

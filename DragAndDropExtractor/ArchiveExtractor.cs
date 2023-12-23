@@ -19,8 +19,33 @@ internal class ArchiveExtractor()
     private readonly string profilesPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "GSX", "MSFS");
     private readonly string airplanesPath = Path.Combine(Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)), "Virtuali", "Airplanes");
     private bool multipleProfileFound;
+    public void StartArchiveProcessing(string[] archivePaths)
+    {
+        for (int i = 0; i < archivePaths.Length; i++)
+        {
+            if (File.Exists(archivePaths[i]))
+            {
+                DotCfgFiles.Clear();
+                DotIniFiles.Clear();
+                DotPyFiles.Clear();
+                installedFiles.Clear();
+                deletedFiles.Clear();
+                multipleProfileFound = false;
+                toExtract.Clear();
+                UserInterface.InitiateInstall(archivePaths[i], i+1, archivePaths.Length);
+                ExtractFiles(archivePaths[i]);
+            }
+            else
+            {
+                UserInterface.ArgsNull();
+                UserInterface.KeyToExit();
+                Console.ReadKey();
+                throw new Exception();
+            }
 
-    public void ExtractFiles(string archivePath)
+        }
+    }
+    private void ExtractFiles(string archivePath)
     {
         //Error handling for unsupported archive types (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
         using IArchive archive = ArchiveFactory.Open(archivePath);
@@ -90,7 +115,6 @@ internal class ArchiveExtractor()
                 using FileStream writer = File.OpenWrite(fullDestinationPath);
                 stream.CopyTo(writer);
             }
-
         }
     }
     private void HandleSupportedFile(List<IArchiveEntry> list, IArchiveEntry entry)
@@ -104,7 +128,7 @@ internal class ArchiveExtractor()
         list.Add(entry);
         string[] matchingFiles = Directory.GetFiles(profilesPath, $"*{GetICAOcode(entry.Key)}*");
         deletedFiles.AddRange(matchingFiles);
-        matchingFiles.ForEach(filePath => File.Delete(filePath));
+        matchingFiles.ForEach(File.Delete);
     }
 
     private void HandleMultipleProfiles(List<IArchiveEntry> list)

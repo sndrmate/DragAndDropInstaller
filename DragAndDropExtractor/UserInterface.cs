@@ -18,13 +18,28 @@ internal class UserInterface
         //AnsiConsole.Write(rule);
         //AnsiConsole.WriteLine();
     }
-    public static void InitiateInstall(string installPath)
+    public static void InitiateInstall(string installPath, int serial, int length)
     {
-        var rule = new Rule("[deepskyblue1]You initiated the installation process from this archive:[/]")
+        if (serial > 1)
         {
-            Justification = Justify.Left
-        };
-        AnsiConsole.Write(rule);
+            AnsiConsole.WriteLine();
+        }
+        if (length > 1)
+        {
+            var rule = new Rule($"[deepskyblue1]{serial}/{length} You initiated the installation process from this archive:[/]")
+            {
+                Justification = Justify.Left
+            };
+            AnsiConsole.Write(rule);
+        }
+        else
+        {
+            var rule = new Rule("[deepskyblue1]You initiated the installation process from this archive:[/]")
+            {
+                Justification = Justify.Left
+            };
+            AnsiConsole.Write(rule);
+        }
         AnsiConsole.WriteLine();
         AnsiConsole.WriteLine($"{installPath}\n");
     }
@@ -66,7 +81,14 @@ internal class UserInterface
         AnsiConsole.WriteLine(string.Join('\n', installedFiles));
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[red]Profile(s) overwritten:[/]");
-        AnsiConsole.WriteLine(string.Join('\n', deletedFiles));
+        if (deletedFiles.Count == 0)
+        {
+            AnsiConsole.WriteLine("None");
+        }
+        else
+        {
+            AnsiConsole.WriteLine(string.Join('\n', deletedFiles));
+        }
     }
     public static void DisplayElapsedTime(Stopwatch sw)
     {

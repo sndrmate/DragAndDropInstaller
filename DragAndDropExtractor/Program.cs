@@ -6,7 +6,7 @@ namespace DragAndDropInstaller;
 
 public static class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         string version = "1.1-dev";
         Console.Title = $"Drag&Drop Installer v{version}";
@@ -21,12 +21,9 @@ public static class Program
 
         try
         {
-            await VersionChecker.CheckVersionAsync(version);
-
-            UserInterface.InitiateInstall(args[0]);
-
-            ArchiveExtractor extract = new();
-            extract.ExtractFiles(args[0]);
+            VersionChecker.CheckVersionAsync(version);
+            ArchiveExtractor EX = new();
+            EX.StartArchiveProcessing(args);
         }
         catch (Exception e)
         {
