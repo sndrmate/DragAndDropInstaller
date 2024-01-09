@@ -26,7 +26,7 @@ internal class UserInterface
         }
         if (length > 1)
         {
-            var rule = new Rule($"[deepskyblue1]{serial}/{length} You initiated the installation process from this archive:[/]")
+            var rule = new Rule($"[deepskyblue1]({serial}/{length}) You initiated the installation process from this archive:[/]")
             {
                 Justification = Justify.Left
             };
@@ -43,6 +43,29 @@ internal class UserInterface
         AnsiConsole.WriteLine();
         AnsiConsole.WriteLine($"{installPath}\n");
     }
+    public static void BeforeNextInstall(int i, int length)
+    {
+        if (length > 1)
+        {
+            if (length - 1 == i)
+            {
+                AnsiConsole.MarkupLine("\n[seagreen3]All profile installations complete.[/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("\n[seagreen3]This profile has been installed, press any key to continue.[/]");
+                Console.ReadKey();
+            }
+        }
+    }
+    public static void SummaryOfPreviousInstall(List<string> previousInstalls, int lenght)
+    {
+        AnsiConsole.Clear();
+        for (int i = 0; i < previousInstalls.Count; i++)
+        {
+            AnsiConsole.MarkupLine($"[steelblue3]({i+1}/{lenght}) Installed profile from this archive:[/] {previousInstalls[i]} ");
+        }     
+    }
     public static void AttentionMultipleProfiles()
     {
         var rule = new Rule("[lightgoldenrod2_1]ATTENTION! Multiple profiles detected![/]")
@@ -52,22 +75,50 @@ internal class UserInterface
         AnsiConsole.Write(rule);
         AnsiConsole.WriteLine();
     }
-    public static string MultipleProfilesChoice(List<IArchiveEntry> entries)
+    public static List<string> MultipleProfilesChoice(List<IArchiveEntry> entries)
     {
-        SelectionPrompt<string> prompt = new();
+        List<string> selectedEntries = [];
+        if (entries.First().Key.EndsWith(".cfg"))
+        {
+            selectedEntries.AddRange(MultipleAircraftChoice(entries));
+        }
+        else
+        {
+            SelectionPrompt<string> prompt = new();
+            foreach (IArchiveEntry entry in entries)
+            {
+                prompt.AddChoice(entry.Key);
+            }
+            string listFileTypes = entries[0].Key.Split('.')[^1].ToUpperInvariant();
+            prompt.Title($"\nPlease select one of the {listFileTypes} files to install the profile. [grey](Use up and down arrow keys)[/]");
+            prompt.HighlightStyle(new Style().Foreground(Color.LightGoldenrod2_1));
+            prompt.PageSize(5);
+            prompt.MoreChoicesText("[grey](Move up and down to reveal more choices)[/]");
+            
+            AnsiConsole.MarkupLine($"[lightgoldenrod2_1]Profile selected:[/]\n[white] {AnsiConsole.Prompt(prompt)}[/]");
+            AnsiConsole.WriteLine();
+            selectedEntries.Add(AnsiConsole.Prompt(prompt));
+        }
+        return selectedEntries;
+    }
+    public static List<string> MultipleAircraftChoice(List<IArchiveEntry> entries)
+    {
+        MultiSelectionPrompt<string> prompt = new();
         foreach (IArchiveEntry entry in entries)
         {
             prompt.AddChoice(entry.Key);
         }
-        string listFileTypes = entries[0].Key.Split('.')[^1].ToUpperInvariant();
-        prompt.Title($"\nPlease select one of the {listFileTypes} files. [grey](Use up and down arrow keys)[/]");
+        prompt.Title($"\nPlease select the file(s) to install the aircraft profile(s). [grey](Use up and down arrow keys)[/]");
         prompt.HighlightStyle(new Style().Foreground(Color.LightGoldenrod2_1));
         prompt.PageSize(5);
         prompt.MoreChoicesText("[grey](Move up and down to reveal more choices)[/]");
-        string selectedEntry = AnsiConsole.Prompt(prompt);
-        AnsiConsole.MarkupLine($"[lightgoldenrod2_1]File selected:[/]\n[white] {selectedEntry}[/]");
+        List<string> selectedEntries = AnsiConsole.Prompt(prompt);
+        foreach (string selectedEntry in selectedEntries)
+        {
+            AnsiConsole.MarkupLine($"[lightgoldenrod2_1]Profile selected:[/]\n[white] {selectedEntry}[/]");
+        }     
         AnsiConsole.WriteLine();
-        return selectedEntry;
+        return selectedEntries;
     }
     public static void DisplayChanges(List<string> installedFiles, List<string> deletedFiles)
     {
@@ -96,7 +147,7 @@ internal class UserInterface
         string elapsedTime = String.Format(System.Globalization.CultureInfo.InvariantCulture,
                                     "{0:00}.{1:00}",
                                     ts.Seconds,
-                                    ts.Milliseconds / 10);
+                                    ts.Milliseconds);
 
         AnsiConsole.MarkupLine($"\n[darkseagreen4]The installation process took {elapsedTime} seconds![/]");
     }

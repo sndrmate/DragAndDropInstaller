@@ -8,7 +8,7 @@ public static class Program
 {
     public static void Main(string[] args)
     {
-        string version = "1.1-dev";
+        string version = "2.0-dev";
         Console.Title = $"Drag&Drop Installer v{version}";
 
         if (args.Length == 0)

@@ -5,12 +5,14 @@
 using System.Diagnostics;
 using SharpCompress;
 using SharpCompress.Archives;
+using SharpCompress.Common;
 
 namespace DragAndDropInstaller;
 
 internal class ArchiveExtractor()
 {
     private readonly List<IArchiveEntry> toExtract = [];
+    private readonly List<string> previousInstalls = [];
     private readonly List<IArchiveEntry> DotPyFiles = [];
     private readonly List<IArchiveEntry> DotIniFiles = [];
     private readonly List<IArchiveEntry> DotCfgFiles = [];
@@ -25,15 +27,27 @@ internal class ArchiveExtractor()
         {
             if (File.Exists(archivePaths[i]))
             {
-                DotCfgFiles.Clear();
-                DotIniFiles.Clear();
-                DotPyFiles.Clear();
-                installedFiles.Clear();
-                deletedFiles.Clear();
-                multipleProfileFound = false;
-                toExtract.Clear();
-                UserInterface.InitiateInstall(archivePaths[i], i+1, archivePaths.Length);
-                ExtractFiles(archivePaths[i]);
+                if (i < 1)
+                {
+                    UserInterface.InitiateInstall(archivePaths[i], i + 1, archivePaths.Length);
+                    ExtractFiles(archivePaths[i]);
+                    UserInterface.BeforeNextInstall(i, archivePaths.Length);       
+                }
+                else
+                {
+                    UserInterface.SummaryOfPreviousInstall(previousInstalls ,archivePaths.Length);
+                    DotCfgFiles.Clear();
+                    DotIniFiles.Clear();
+                    DotPyFiles.Clear();
+                    installedFiles.Clear();
+                    deletedFiles.Clear();
+                    multipleProfileFound = false;
+                    toExtract.Clear();
+                    UserInterface.InitiateInstall(archivePaths[i], i + 1, archivePaths.Length);
+                    ExtractFiles(archivePaths[i]);
+                    UserInterface.BeforeNextInstall(i, archivePaths.Length);
+                }
+                
             }
             else
             {
@@ -47,6 +61,7 @@ internal class ArchiveExtractor()
     }
     private void ExtractFiles(string archivePath)
     {
+        previousInstalls.Add(archivePath.Split('\\')[^1]);
         //Error handling for unsupported archive types (which is not in this list: Rar, Zip, Tar, Tar.GZip, Tar.BZip2, Tar.LZip, Tar.XZ, GZip(single file), 7Zip)
         using IArchive archive = ArchiveFactory.Open(archivePath);
         foreach (IArchiveEntry entry in archive.Entries)
@@ -86,26 +101,7 @@ internal class ArchiveExtractor()
         {
             if (entry.Key.EndsWith(".cfg", StringComparison.OrdinalIgnoreCase))
             {
-                string ContainingDirectory;
-                if (entry.Key.Contains('\\'))
-                {
-
-                    ContainingDirectory = entry.Key.Split('\\')[entry.Key.Split('\\').Length - 2];
-                }
-                else
-                {
-                    ContainingDirectory = entry.Key.Split('/')[entry.Key.Split('/').Length - 2];
-                }
-                string PathToDirectory = Path.GetFullPath(Path.Combine(airplanesPath, ContainingDirectory));
-                if (!Directory.Exists(PathToDirectory))
-                {
-                    Directory.CreateDirectory(PathToDirectory);
-                }
-                string fullDestinationPath = Path.GetFullPath(Path.Combine(airplanesPath, ContainingDirectory, GetFileName(entry.Key)));
-                installedFiles.Add(fullDestinationPath);
-                using Stream stream = entry.OpenEntryStream();
-                using FileStream writer = File.OpenWrite(fullDestinationPath);
-                stream.CopyTo(writer);
+                ExtractCfgFile(entry);
             }
             else
             {
@@ -122,6 +118,7 @@ internal class ArchiveExtractor()
         //needs to be modified for cfg files, there should be no deletion if its a .cfg file. But somehow we should indicate, if the profile is overwritten?
         if (entry.Key.EndsWith(".cfg", StringComparison.OrdinalIgnoreCase))
         {
+
             list.Add(entry);
             return;
         }
@@ -148,9 +145,12 @@ internal class ArchiveExtractor()
             UserInterface.AttentionMultipleProfiles();
             multipleProfileFound = true;
         }
-        string choice = UserInterface.MultipleProfilesChoice(list);
-        IArchiveEntry selectedEntry = list.Find(entry => entry.Key == choice);
-        toExtract.Add(selectedEntry);
+        List<string> choices = [];
+        choices.AddRange(UserInterface.MultipleProfilesChoice(list));
+        foreach (string choice in choices)
+        {
+            toExtract.Add(list.Find(entry => entry.Key == choice));
+        }
     }
 
     private static string GetFileName(string fileName)
@@ -161,6 +161,34 @@ internal class ArchiveExtractor()
             string fileN when fileN.Contains('\\', StringComparison.OrdinalIgnoreCase) => fileName.Split('\\')[^1],
             _ => fileName,
         };
+    }
+    private void ExtractCfgFile(IArchiveEntry entry)
+    {
+        string ContainingDirectory;
+        if (entry.Key.Contains('\\'))
+        {
+
+            ContainingDirectory = entry.Key.Split('\\')[entry.Key.Split('\\').Length - 2];
+        }
+        else
+        {
+            ContainingDirectory = entry.Key.Split('/')[entry.Key.Split('/').Length - 2];
+        }
+        string PathToDirectory = Path.GetFullPath(Path.Combine(airplanesPath, ContainingDirectory));
+        string fullDestinationPath = Path.GetFullPath(Path.Combine(airplanesPath, ContainingDirectory, GetFileName(entry.Key)));
+        if (!Directory.Exists(PathToDirectory))
+        {
+            Directory.CreateDirectory(PathToDirectory);
+            
+        }
+        else
+        {
+            deletedFiles.Add(fullDestinationPath);
+        }
+        installedFiles.Add(fullDestinationPath);
+        using Stream stream = entry.OpenEntryStream();
+        using FileStream writer = File.OpenWrite(fullDestinationPath);
+        stream.CopyTo(writer);
     }
     private static string GetICAOcode(string fileName)
     {
