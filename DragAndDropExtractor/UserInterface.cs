@@ -94,10 +94,9 @@ internal class UserInterface
             prompt.HighlightStyle(new Style().Foreground(Color.LightGoldenrod2_1));
             prompt.PageSize(5);
             prompt.MoreChoicesText("[grey](Move up and down to reveal more choices)[/]");
-            
-            AnsiConsole.MarkupLine($"[lightgoldenrod2_1]Profile selected:[/]\n[white] {AnsiConsole.Prompt(prompt)}[/]");
-            AnsiConsole.WriteLine();
             selectedEntries.Add(AnsiConsole.Prompt(prompt));
+            AnsiConsole.MarkupLine($"[lightgoldenrod2_1]Profile selected:[/]\n[white] {selectedEntries.First()}[/]");
+            AnsiConsole.WriteLine();
         }
         return selectedEntries;
     }
@@ -108,7 +107,7 @@ internal class UserInterface
         {
             prompt.AddChoice(entry.Key);
         }
-        prompt.Title($"\nPlease select the file(s) to install the aircraft profile(s). [grey](Use up and down arrow keys)[/]");
+        prompt.Title($"\nPlease select which profile(s) to install. [grey](Use up and down arrow keys)[/]");
         prompt.HighlightStyle(new Style().Foreground(Color.LightGoldenrod2_1));
         prompt.PageSize(5);
         prompt.MoreChoicesText("[grey](Move up and down to reveal more choices)[/]");

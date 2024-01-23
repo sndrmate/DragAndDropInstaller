@@ -11,22 +11,20 @@ internal class VersionChecker
         try
         {
             string xmlUrl = "https://sndrmate.github.io/docs/ddi_version.xml"; // this should be json
-
             string currentVersion = await Task.Run(() =>
             {
-                using (XmlReader reader = XmlReader.Create(xmlUrl))
+                using XmlReader reader = XmlReader.Create(xmlUrl);
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "CurrentVersion")
                     {
-                        if (reader.NodeType == XmlNodeType.Element && reader.Name == "CurrentVersion")
-                        {
-                            reader.Read();
-                            return reader.Value;
-                        }
+                        reader.Read();
+                        return reader.Value;
                     }
-                    return string.Empty;
                 }
-            });
+                return string.Empty;
+
+            }).ConfigureAwait(false);
 
             if (!string.Equals(localVersion, currentVersion, StringComparison.OrdinalIgnoreCase))
             {

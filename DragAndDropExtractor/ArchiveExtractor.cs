@@ -77,6 +77,9 @@ internal class ArchiveExtractor()
                 case string cfgFile when cfgFile.EndsWith(".cfg", StringComparison.OrdinalIgnoreCase):
                     HandleSupportedFile(DotCfgFiles, entry);
                     break;
+                default:
+                    throw new Exception();
+                    break;
             }
         }
 
@@ -157,23 +160,15 @@ internal class ArchiveExtractor()
     {
         return fileName switch
         {
-            string fileN when fileN.Contains('/', StringComparison.OrdinalIgnoreCase) => fileName.Split('/')[^1],
-            string fileN when fileN.Contains('\\', StringComparison.OrdinalIgnoreCase) => fileName.Split('\\')[^1],
+            string fileN when fileN.Contains('/', StringComparison.Ordinal) => fileName.Split('/')[^1],
+            string fileN when fileN.Contains('\\', StringComparison.Ordinal) => fileName.Split('\\')[^1],
             _ => fileName,
         };
     }
     private void ExtractCfgFile(IArchiveEntry entry)
     {
         string ContainingDirectory;
-        if (entry.Key.Contains('\\'))
-        {
-
-            ContainingDirectory = entry.Key.Split('\\')[entry.Key.Split('\\').Length - 2];
-        }
-        else
-        {
-            ContainingDirectory = entry.Key.Split('/')[entry.Key.Split('/').Length - 2];
-        }
+        ContainingDirectory = entry.Key.Contains('\\', StringComparison.Ordinal) ? entry.Key.Split('\\')[^2] : entry.Key.Split('/')[^2];
         string PathToDirectory = Path.GetFullPath(Path.Combine(airplanesPath, ContainingDirectory));
         string fullDestinationPath = Path.GetFullPath(Path.Combine(airplanesPath, ContainingDirectory, GetFileName(entry.Key)));
         if (!Directory.Exists(PathToDirectory))
