@@ -10,15 +10,15 @@
     <Authors>smatthew</Authors>
     <Product>DragAndDropInstaller</Product>
     <PackageId>DragAndDropInstaller</PackageId>
-    <FileVersion>1.0.1.0</FileVersion>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <Copyright>(c) smatthew</Copyright>
     <Description>DragAndDropInstaller</Description>
     <Title>Drag&amp;Drop Installer</Title>
-    <Version>1.1</Version>
+    <Version>2.0</Version>
     <Company>smatthew</Company>
     <AssemblyName>DragAndDropInstaller</AssemblyName>
     <SignAssembly>False</SignAssembly>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />

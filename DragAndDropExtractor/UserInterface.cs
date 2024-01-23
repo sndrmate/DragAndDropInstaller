@@ -10,7 +10,7 @@ internal class UserInterface
     private UserInterface() { }
     public static async Task UpdateReminderAsync(string currentVersion, string localVersion)
     {
-        Console.Title = $"Drag&Drop Installer v{localVersion} !!!THIS VERSION IS OUTDATED, PLEASE DOWNLOAD THE NEWEST VERSION FROM FLIGHTSIM.TO!!!";
+        Console.Title = $"Drag&Drop Installer v{localVersion} !!!THIS VERSION IS OUTDATED, PLEASE DOWNLOAD THE {currentVersion} VERSION FROM FLIGHTSIM.TO!!!";
         //var rule = new Rule($"[red]This version of the Drag&Drop Installer is outdated. Please download the v{currentVersion} on flightsim.to![/]")
         //{
         //    Justification = Justify.Left
@@ -78,7 +78,7 @@ internal class UserInterface
     public static List<string> MultipleProfilesChoice(List<IArchiveEntry> entries)
     {
         List<string> selectedEntries = [];
-        if (entries.First().Key.EndsWith(".cfg"))
+        if (entries[0].Key.EndsWith(".cfg"))
         {
             selectedEntries.AddRange(MultipleAircraftChoice(entries));
         }
@@ -95,7 +95,7 @@ internal class UserInterface
             prompt.PageSize(5);
             prompt.MoreChoicesText("[grey](Move up and down to reveal more choices)[/]");
             selectedEntries.Add(AnsiConsole.Prompt(prompt));
-            AnsiConsole.MarkupLine($"[lightgoldenrod2_1]Profile selected:[/]\n[white] {selectedEntries.First()}[/]");
+            AnsiConsole.MarkupLine($"[lightgoldenrod2_1]Profile selected:[/]\n[white] {selectedEntries[0]}[/]");
             AnsiConsole.WriteLine();
         }
         return selectedEntries;
